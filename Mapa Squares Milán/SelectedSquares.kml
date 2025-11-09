@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Lugares TFM</name>
+
+    <!-- Bocconi -->
+    <Placemark>
+      <name>Bocconi</name>
+      <ExtendedData>
+        <Data name="cellId"><value>4259</value></Data>
+        <Data name="featureId"><value>4258</value></Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              9.185807094976228,45.44749349132659,0
+              9.188812217525069,45.44748856348753,0
+              9.188805160890963,45.44537328818193,0
+              9.18580015065345,45.44537821565955,0
+              9.185807094976228,45.44749349132659,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Navigli district -->
+    <Placemark>
+      <name>Navigli district</name>
+      <ExtendedData>
+        <Data name="cellId"><value>4456</value></Data>
+        <Data name="featureId"><value>4455</value></Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              9.176804939729143,45.45173835155634,0
+              9.179810289215883,45.45173366020821,0
+              9.179803568022797,45.44961838541073,0
+              9.176798330872652,45.44962307641476,0
+              9.176804939729143,45.45173835155634,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Duomo Milan -->
+    <Placemark>
+      <name>Duomo Milan</name>
+      <ExtendedData>
+        <Data name="cellId"><value>5060</value></Data>
+        <Data name="featureId"><value>5059</value></Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              9.188868698831616,45.4644107375785,0
+              9.19187471953554,45.46440572774091,0
+              9.191867544215187,45.46229045910362,0
+              9.188861635922354,45.462295468573735,0
+              9.188868698831616,45.4644107375785,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- San Bovio-->
+    <Placemark>
+      <name>San Bovio</name>
+      <ExtendedData>
+        <Data name="cellId"><value>5200</value></Data>
+        <Data name="featureId"><value>5199</value></Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              9.309120342161874,45.46626389105865,0
+              9.31212643364573,45.46625571643562,0
+              9.312114760692122,45.464140468043546,0
+              9.309108781626165,45.46414864206699,0
+              9.309120342161874,45.46626389105865,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Parco Forlanini -->
+    <Placemark>
+      <name>Parco Forlanini</name>
+      <ExtendedData>
+        <Data name="cellId"><value>5085</value></Data>
+        <Data name="featureId"><value>5084</value></Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              9.264018948488795,45.46426175999448,0
+              9.267024945511075,45.46425477252696,0
+              9.267014959953242,45.46213951496187,0
+              9.264009075338821,45.462146501916884,0
+              9.264018948488795,45.46426175999448,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+    <!-- Cava Manara -->
+    <Placemark>
+      <name>Cava Manara</name>
+      <ExtendedData>
+        <Data name="cellId"><value>4703</value></Data>
+        <Data name="featureId"><value>4702</value></Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              9.017522640918246,45.458219691370864,0
+              9.02052834921698,45.45821919074613,0
+              9.020527581705775,45.45610390806374,0
+              9.017521985784052,45.456104408651754,0
+              9.017522640918246,45.458219691370864,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
+  </Document>
+</kml>
