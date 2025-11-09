@@ -47,6 +47,28 @@
       </Polygon>
     </Placemark>
 
+    <!-- Cava Manara -->
+    <Placemark>
+      <name>Cava Manara</name>
+      <ExtendedData>
+        <Data name="cellId"><value>4703</value></Data>
+        <Data name="featureId"><value>4702</value></Data>
+      </ExtendedData>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              9.017522640918246,45.458219691370864,0
+              9.02052834921698,45.45821919074613,0
+              9.020527581705775,45.45610390806374,0
+              9.017521985784052,45.456104408651754,0
+              9.017522640918246,45.458219691370864,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+
     <!-- Duomo Milan -->
     <Placemark>
       <name>Duomo Milan</name>
@@ -63,28 +85,6 @@
               9.191867544215187,45.46229045910362,0
               9.188861635922354,45.462295468573735,0
               9.188868698831616,45.4644107375785,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
-    </Placemark>
-
-    <!-- San Bovio-->
-    <Placemark>
-      <name>San Bovio</name>
-      <ExtendedData>
-        <Data name="cellId"><value>5200</value></Data>
-        <Data name="featureId"><value>5199</value></Data>
-      </ExtendedData>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <coordinates>
-              9.309120342161874,45.46626389105865,0
-              9.31212643364573,45.46625571643562,0
-              9.312114760692122,45.464140468043546,0
-              9.309108781626165,45.46414864206699,0
-              9.309120342161874,45.46626389105865,0
             </coordinates>
           </LinearRing>
         </outerBoundaryIs>
@@ -113,22 +113,22 @@
       </Polygon>
     </Placemark>
 
-    <!-- Cava Manara -->
+    <!-- San Bovio-->
     <Placemark>
-      <name>Cava Manara</name>
+      <name>San Bovio</name>
       <ExtendedData>
-        <Data name="cellId"><value>4703</value></Data>
-        <Data name="featureId"><value>4702</value></Data>
+        <Data name="cellId"><value>5200</value></Data>
+        <Data name="featureId"><value>5199</value></Data>
       </ExtendedData>
       <Polygon>
         <outerBoundaryIs>
           <LinearRing>
             <coordinates>
-              9.017522640918246,45.458219691370864,0
-              9.02052834921698,45.45821919074613,0
-              9.020527581705775,45.45610390806374,0
-              9.017521985784052,45.456104408651754,0
-              9.017522640918246,45.458219691370864,0
+              9.309120342161874,45.46626389105865,0
+              9.31212643364573,45.46625571643562,0
+              9.312114760692122,45.464140468043546,0
+              9.309108781626165,45.46414864206699,0
+              9.309120342161874,45.46626389105865,0
             </coordinates>
           </LinearRing>
         </outerBoundaryIs>
