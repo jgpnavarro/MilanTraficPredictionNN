@@ -3,136 +3,442 @@
   <Document>
     <name>Lugares TFM</name>
 
-    <!-- Bocconi -->
+    <!-- Bocconi (2x2: 4259, 4260, 4359, 4360) -->
     <Placemark>
       <name>Bocconi</name>
       <ExtendedData>
-        <Data name="cellId"><value>4259</value></Data>
-        <Data name="featureId"><value>4258</value></Data>
+        <Data name="cellIds">
+          <value>4259,4260,4359,4360</value>
+        </Data>
       </ExtendedData>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <coordinates>
-              9.185807094976228,45.44749349132659,0
-              9.188812217525069,45.44748856348753,0
-              9.188805160890963,45.44537328818193,0
-              9.18580015065345,45.44537821565955,0
-              9.185807094976228,45.44749349132659,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
+      <MultiGeometry>
+
+        <!-- Celda 4259 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.185807094976228,45.44749349132659,0
+                9.188812217525069,45.44748856348753,0
+                9.188805160890963,45.44537328818193,0
+                9.18580015065345,45.44537821565955,0
+                9.185807094976228,45.44749349132659,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4260 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.188812217525069,45.44748856348753,0
+                9.191817339289887,45.44748355658888,0
+                9.191810170344564,45.445368281650524,0
+                9.188805160890963,45.44537328818193,0
+                9.188812217525069,45.44748856348753,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4359 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.185814040070548,45.449608766206055,0
+                9.18881927494319,45.44960383800552,0
+                9.188812217525069,45.44748856348753,0
+                9.185807094976228,45.44749349132659,0
+                9.185814040070548,45.449608766206055,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4360 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.18881927494319,45.44960383800552,0
+                9.191824509031708,45.4495988307396,0
+                9.191817339289887,45.44748355658888,0
+                9.188812217525069,45.44748856348753,0
+                9.18881927494319,45.44960383800552,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+      </MultiGeometry>
     </Placemark>
 
-    <!-- Navigli district -->
+    <!-- Navigli district (2x2: 4455, 4456, 4355, 4356) -->
     <Placemark>
       <name>Navigli district</name>
       <ExtendedData>
-        <Data name="cellId"><value>4456</value></Data>
-        <Data name="featureId"><value>4455</value></Data>
+        <Data name="cellIds">
+          <value>4455,4456,4355,4356</value>
+        </Data>
       </ExtendedData>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <coordinates>
-              9.176804939729143,45.45173835155634,0
-              9.179810289215883,45.45173366020821,0
-              9.179803568022797,45.44961838541073,0
-              9.176798330872652,45.44962307641476,0
-              9.176804939729143,45.45173835155634,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
+      <MultiGeometry>
+
+        <!-- Celda 4455 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.173799589508093,45.45174296383307,0
+                9.176804939729143,45.45173835155634,0
+                9.176798330872652,45.44962307641476,0
+                9.173793092988296,45.44962768835319,0
+                9.173799589508093,45.45174296383307,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4456 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.176804939729143,45.45173835155634,0
+                9.179810289215883,45.45173366020821,0
+                9.179803568022797,45.44961838541073,0
+                9.176798330872652,45.44962307641476,0
+                9.176804939729143,45.45173835155634,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4355 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.173793092988296,45.44962768835319,0
+                9.176798330872652,45.44962307641476,0
+                9.176791722750368,45.44750780048568,0
+                9.173786597190228,45.447512412085835,0
+                9.173793092988296,45.44962768835319,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4356 -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.176798330872652,45.44962307641476,0
+                9.179803568022797,45.44961838541073,0
+                9.1797968475764,45.44750310982571,0
+                9.176791722750368,45.44750780048568,0
+                9.176798330872652,45.44962307641476,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+      </MultiGeometry>
     </Placemark>
 
-    <!-- Cava Manara -->
+    <!-- Cava Manara (2x2: 4703, 4704, 4603, 4604) – 4703 es esquina superior izquierda -->
     <Placemark>
       <name>Cava Manara</name>
       <ExtendedData>
-        <Data name="cellId"><value>4703</value></Data>
-        <Data name="featureId"><value>4702</value></Data>
+        <Data name="cellIds">
+          <value>4703,4704,4603,4604</value>
+        </Data>
       </ExtendedData>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <coordinates>
-              9.017522640918246,45.458219691370864,0
-              9.02052834921698,45.45821919074613,0
-              9.020527581705775,45.45610390806374,0
-              9.017521985784052,45.456104408651754,0
-              9.017522640918246,45.458219691370864,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
+      <MultiGeometry>
+
+        <!-- Celda 4703 (sup-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.017521985784052,45.458219691370864,0
+                9.02052834921698,45.458219691370864,0
+                9.02052834921698,45.45610390806374,0
+                9.017521985784052,45.45610390806374,0
+                9.017521985784052,45.458219691370864,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4704 (sup-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.02052834921698,45.458219691370864,0
+                9.023534712649907,45.458219691370864,0
+                9.023534712649907,45.45610390806374,0
+                9.02052834921698,45.45610390806374,0
+                9.02052834921698,45.458219691370864,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4603 (inf-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.017521985784052,45.45610390806374,0
+                9.02052834921698,45.45610390806374,0
+                9.02052834921698,45.45398812475661,0
+                9.017521985784052,45.45398812475661,0
+                9.017521985784052,45.45610390806374,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 4604 (inf-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.02052834921698,45.45610390806374,0
+                9.023534712649907,45.45610390806374,0
+                9.023534712649907,45.45398812475661,0
+                9.02052834921698,45.45398812475661,0
+                9.02052834921698,45.45610390806374,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+      </MultiGeometry>
     </Placemark>
 
-    <!-- Duomo Milan -->
+    <!-- Duomo Milan (2x2: 5060, 5061, 5160, 5161) – 5060 es esquina inferior izquierda -->
     <Placemark>
       <name>Duomo Milan</name>
       <ExtendedData>
-        <Data name="cellId"><value>5060</value></Data>
-        <Data name="featureId"><value>5059</value></Data>
+        <Data name="cellIds">
+          <value>5060,5061,5160,5161</value>
+        </Data>
       </ExtendedData>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <coordinates>
-              9.188868698831616,45.4644107375785,0
-              9.19187471953554,45.46440572774091,0
-              9.191867544215187,45.46229045910362,0
-              9.188861635922354,45.462295468573735,0
-              9.188868698831616,45.4644107375785,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
+      <MultiGeometry>
+
+        <!-- Celda 5060 (inf-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.188861635922354,45.4644107375785,0
+                9.19187471953554,45.4644107375785,0
+                9.19187471953554,45.46229045910362,0
+                9.188861635922354,45.46229045910362,0
+                9.188861635922354,45.4644107375785,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5061 (inf-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.19187471953554,45.4644107375785,0
+                9.194887803148728,45.4644107375785,0
+                9.194887803148728,45.46229045910362,0
+                9.19187471953554,45.46229045910362,0
+                9.19187471953554,45.4644107375785,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5160 (sup-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.188861635922354,45.46653101605337,0
+                9.19187471953554,45.46653101605337,0
+                9.19187471953554,45.4644107375785,0
+                9.188861635922354,45.4644107375785,0
+                9.188861635922354,45.46653101605337,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5161 (sup-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.19187471953554,45.46653101605337,0
+                9.194887803148728,45.46653101605337,0
+                9.194887803148728,45.4644107375785,0
+                9.19187471953554,45.4644107375785,0
+                9.19187471953554,45.46653101605337,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+      </MultiGeometry>
     </Placemark>
 
-    <!-- Parco Forlanini -->
+    <!-- Parco Forlanini (2x2: 5084, 5085, 5184, 5185) – 5085 es esquina inferior derecha -->
     <Placemark>
       <name>Parco Forlanini</name>
       <ExtendedData>
-        <Data name="cellId"><value>5085</value></Data>
-        <Data name="featureId"><value>5084</value></Data>
+        <Data name="cellIds">
+          <value>5084,5085,5184,5185</value>
+        </Data>
       </ExtendedData>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <coordinates>
-              9.264018948488795,45.46426175999448,0
-              9.267024945511075,45.46425477252696,0
-              9.267014959953242,45.46213951496187,0
-              9.264009075338821,45.462146501916884,0
-              9.264018948488795,45.46426175999448,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
+      <MultiGeometry>
+
+        <!-- Celda 5085 (inf-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.264009075338821,45.46426175999448,0
+                9.267024945511075,45.46426175999448,0
+                9.267024945511075,45.46213951496187,0
+                9.264009075338821,45.46213951496187,0
+                9.264009075338821,45.46426175999448,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5084 (inf-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.260993205166567,45.46426175999448,0
+                9.264009075338821,45.46426175999448,0
+                9.264009075338821,45.46213951496187,0
+                9.260993205166567,45.46213951496187,0
+                9.260993205166567,45.46426175999448,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5185 (sup-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.264009075338821,45.46638400502709,0
+                9.267024945511075,45.46638400502709,0
+                9.267024945511075,45.46426175999448,0
+                9.264009075338821,45.46426175999448,0
+                9.264009075338821,45.46638400502709,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5184 (sup-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.260993205166567,45.46638400502709,0
+                9.264009075338821,45.46638400502709,0
+                9.264009075338821,45.46426175999448,0
+                9.260993205166567,45.46426175999448,0
+                9.260993205166567,45.46638400502709,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+      </MultiGeometry>
     </Placemark>
 
-    <!-- San Bovio-->
+    <!-- San Bovio (2x2: 5200, 5201, 5100, 5101) – 5200 es esquina superior izquierda -->
     <Placemark>
       <name>San Bovio</name>
       <ExtendedData>
-        <Data name="cellId"><value>5200</value></Data>
-        <Data name="featureId"><value>5199</value></Data>
+        <Data name="cellIds">
+          <value>5200,5201,5100,5101</value>
+        </Data>
       </ExtendedData>
-      <Polygon>
-        <outerBoundaryIs>
-          <LinearRing>
-            <coordinates>
-              9.309120342161874,45.46626389105865,0
-              9.31212643364573,45.46625571643562,0
-              9.312114760692122,45.464140468043546,0
-              9.309108781626165,45.46414864206699,0
-              9.309120342161874,45.46626389105865,0
-            </coordinates>
-          </LinearRing>
-        </outerBoundaryIs>
-      </Polygon>
+      <MultiGeometry>
+
+        <!-- Celda 5200 (sup-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.309108781626165,45.46626389105865,0
+                9.31212643364573,45.46626389105865,0
+                9.31212643364573,45.464140468043546,0
+                9.309108781626165,45.464140468043546,0
+                9.309108781626165,45.46626389105865,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5201 (sup-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.31212643364573,45.46626389105865,0
+                9.315144085665295,45.46626389105865,0
+                9.315144085665295,45.464140468043546,0
+                9.31212643364573,45.464140468043546,0
+                9.31212643364573,45.46626389105865,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5100 (inf-izq) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.309108781626165,45.464140468043546,0
+                9.31212643364573,45.464140468043546,0
+                9.31212643364573,45.46201704502844,0
+                9.309108781626165,45.46201704502844,0
+                9.309108781626165,45.464140468043546,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+        <!-- Celda 5101 (inf-dcha) -->
+        <Polygon>
+          <outerBoundaryIs>
+            <LinearRing>
+              <coordinates>
+                9.31212643364573,45.464140468043546,0
+                9.315144085665295,45.464140468043546,0
+                9.315144085665295,45.46201704502844,0
+                9.31212643364573,45.46201704502844,0
+                9.31212643364573,45.464140468043546,0
+              </coordinates>
+            </LinearRing>
+          </outerBoundaryIs>
+        </Polygon>
+
+      </MultiGeometry>
     </Placemark>
 
   </Document>
