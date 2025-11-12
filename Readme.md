@@ -1,52 +1,83 @@
-# MilanTrafficPredictionNN
-
-Predicción de **tráfico de Internet móvil** en Milán (dataset Telecom Italia) sobre una **malla espacial** con resolución temporal de **10 minutos**.
-Este repositorio contiene el pipeline de preprocesado, la unificación de series temporales por celda y utilidades para preparar los datos de cara al modelado.
+Aquí tienes un bloque de **README.md** listo para pegar, con una explicación más “humana” de qué es cada archivo y para qué lo usarás. He sido breve en `Data/` (los ficheros diarios son equivalentes) y más explícito en `Processing/` y los scripts.
 
 ---
 
-## Estructura del proyecto
+# MilanTrafficPredictionNN
+
+Predicción de **tráfico de Internet móvil** en Milán (Telecom Italia) sobre una **malla espacial** con intervalos de **10 minutos**.
+El repositorio incluye el pipeline de **preprocesado**, la **unificación** de series por celda y utilidades para preparar los datos antes del modelado.
+
+---
+
+## Estructura del proyecto (¿qué hay en cada sitio?)
 
 ```
 MilanTraficPredictionNN/
 ├─ Data/
-│  ├─ raw/                    # Ficheros originales día a día (.txt)
-│  └─ processed/              # Salidas del preprocesado
-│     ├─ *_internet_total.csv # Un CSV por día (internet_total por celda y 10')
-│     ├─ all_cells.csv        # TODAS las celdas y fechas unificadas (tabla larga)
-│     └─ by_cell/
-│        ├─ cell_4259.csv     # Una serie por celda (todas las fechas seguidas)
-│        └─ ...               # Resto de celdas de interés
-│
+│  ├─ raw/
+│  └─ processed/
 ├─ Mapa Squares Milán/
-│  └─ SelectedSquares.kml     # Polígonos/IDs de celdas de interés
-│
 ├─ Processing/
 │  ├─ __init__.py
-│  ├─ config.py               # Rutas, celdas de interés, zona horaria (Europe/Rome)
-│  ├─ process_cells_internet.py  # Filtrado + agregación a internet_total (10')
-│  └─ timeseries_dataset.py      # Unificación y guardado (global y por celda)
-│
-├─ run_pipeline.py            # Orquestación del preprocesado
+│  ├─ config.py
+│  ├─ process_cells_internet.py
+│  └─ timeseries_dataset.py
+├─ run_pipeline.py
 └─ Readme.md
 ```
+
+### `Data/`
+
+* **`raw/`**: ficheros **originales** por día (`sms-call-internet-mi-YYYY-MM-DD.txt`).
+  Todos comparten el mismo formato y cubren del **2013-11-01** al **2014-01-01**.
+* **`processed/`**: resultados del preprocesado:
+
+  * `*_internet_total.csv` → **un CSV por día** ya filtrado a las celdas de interés y con la métrica **`internet_total`** cada 10 minutos.
+  * `all_cells.csv` → **todo junto** (todas las fechas y celdas) en una **tabla larga**: `cell_id, datetime, internet_total`.
+  * `by_cell/` → **un CSV por celda** (`cell_<id>.csv`) con su serie temporal completa (todos los días seguidos).
+
+> Idea rápida: trabajas **a partir de `processed/`**. Los `raw/` solo sirven como origen.
+
+### `Mapa Squares Milán/`
+
+* **`SelectedSquares.kml`**: polígonos y **IDs de celda** (grid) de las zonas analizadas (Bocconi, Navigli, Duomo, Parco Forlanini, San Bovio, Cava Manara).
+  No es un dato “operativo” del pipeline, pero documenta claramente qué celdas se usan.
+
+### `Processing/`
+
+* **`__init__.py`**: marca esta carpeta como **paquete Python** (permite usar `python -m Processing...`).
+* **`config.py`**: **único punto de configuración**:
+
+  * rutas (`Data/`, `raw/`, `processed/`),
+  * **lista de `CELL_IDS`** a filtrar,
+  * zona horaria (`TIMEZONE="Europe/Rome"`) para convertir correctamente desde epoch ms.
+* **`process_cells_internet.py`**: **preprocesado diario**.
+  Lee cada `.txt` de `raw/`, convierte el tiempo a `datetime` local, filtra por `CELL_IDS` y **agrega `internet_total`** por `(cell_id, datetime)` en pasos de 10'.
+  **Salida**: `*_internet_total.csv` en `processed/`.
+* **`timeseries_dataset.py`**: **unificación de series**.
+  Lee todos los `*_internet_total.csv`, normaliza columnas, concatena y **ordena**.
+  **Salidas**:
+
+  * `processed/all_cells.csv` (tabla larga con todo),
+  * `processed/by_cell/cell_<id>.csv` (una serie por celda).
+
+### Raíz del repo
+
+* **`run_pipeline.py`**: orquesta el **preprocesado inicial** (del `raw/` a `processed/*_internet_total.csv`).
+  Se usa una vez (o cuando cambien los `raw/`/config).
+* **`Readme.md`**: este documento.
 
 ---
 
 ## Requisitos
 
 * Python **3.10+**
-* Paquetes:
-
-  * `pandas`
-
-Sugerencia: entorno virtual con `venv` y `pip install pandas`.
+* Librerías: `pandas`
+  *(recomendado usar entorno virtual: `python -m venv .venv && .venv\Scripts\activate && pip install pandas` en Windows)*
 
 ---
 
-## Configuración
-
-Editar `Processing/config.py`:
+## Configuración rápida (`Processing/config.py`)
 
 ```python
 from pathlib import Path
@@ -59,65 +90,67 @@ PROCESSED_DIR = DATA_DIR / "processed"
 # Celdas/zonas de interés (IDs de la malla)
 CELL_IDS = [4259, 4260, 4359, 4360, 4455, 4456, 4703, 5060, 5085, 5200]
 
-# Zona horaria del dataset (para convertir desde epoch ms a local)
+# Zona horaria del dataset para convertir epoch ms a hora local
 TIMEZONE = "Europe/Rome"
 ```
 
 ---
 
-## Uso
+## Comandos habituales
 
-> Ejecutar siempre desde la **raíz** del repo.
+> Ejecutar **siempre desde la raíz del repo**.
 
-### 1) Preprocesado inicial (filtra celdas y agrega internet_total por día)
-
-Genera `*_internet_total.csv` en `Data/processed/`.
+### 1) Preprocesar los brutos (genera `*_internet_total.csv`)
 
 ```bash
 python run_pipeline.py
 ```
 
-### 2) Unificación (todo junto y por celda)
-
-Crea `Data/processed/all_cells.csv` y un CSV por celda en `Data/processed/by_cell/`.
+### 2) Unificar todo y crear “una serie por celda”
 
 ```bash
 python -m Processing.timeseries_dataset
 ```
 
----
+Resultados:
 
-## Formato de los datos unificados
-
-**`Data/processed/all_cells.csv`** (tabla larga):
-
-| cell_id | datetime            | internet_total |
-| ------: | ------------------- | -------------- |
-|    4259 | 2013-11-01 00:00:00 | 261.68         |
-|    4259 | 2013-11-01 00:10:00 | 189.42         |
-|    4259 | 2013-11-01 00:20:00 | 231.90         |
-|    4260 | 2013-11-01 00:00:00 | 210.35         |
-|    4260 | 2013-11-01 00:10:00 | 198.77         |
-
-**`Data/processed/by_cell/cell_4259.csv`** (una serie por celda):
-
-| cell_id | datetime            | internet_total |
-| ------: | ------------------- | -------------- |
-|    4259 | 2013-11-01 00:00:00 | 261.68         |
-|    4259 | 2013-11-01 00:10:00 | 189.42         |
-|    4259 | 2013-11-01 00:20:00 | 231.90         |
-|       … | …                   | …              |
-
-> Las marcas temporales están en **hora local (Europe/Rome)** tras convertir desde epoch ms.
+* `Data/processed/all_cells.csv`
+* `Data/processed/by_cell/cell_<id>.csv`
 
 ---
 
-## Carga programática (ejemplo)
+## Formato de salida (lo esencial)
+
+**`all_cells.csv`** (tabla larga):
+
+```
+cell_id,datetime,internet_total
+4259,2013-11-01 00:00:00,261.68
+4259,2013-11-01 00:10:00,189.42
+...
+4260,2013-11-01 00:00:00,210.35
+...
+```
+
+**`by_cell/cell_4259.csv`** (una serie por celda):
+
+```
+cell_id,datetime,internet_total
+4259,2013-11-01 00:00:00,261.68
+4259,2013-11-01 00:10:00,189.42
+...
+```
+
+> **`datetime`** está en hora local **Europe/Rome** tras convertir desde epoch ms.
+
+---
+
+## Uso programático (cargar en Python)
 
 ```python
 from Processing.timeseries_dataset import load_unified, get_cell_timeseries
 
-all_df = load_unified()               # tabla larga con todas las celdas y fechas
+all_df = load_unified()                  # tabla larga con todas las celdas y fechas
 df_4259 = get_cell_timeseries(all_df, 4259)  # serie de una celda (índice datetime)
 
 print(all_df.head())
@@ -126,22 +159,10 @@ print(df_4259.head())
 
 ---
 
-## Roadmap (siguientes pasos)
+## Siguientes pasos (resumen)
 
-1. Reindexado a malla exacta de 10 minutos y gestión de huecos (NaN/0/ffill).
-2. Construcción del dataset supervisado por celda:
-
-   * Ventana entrada **W=12** (2 h), horizonte **H=6** (1 h).
-3. Partición temporal: **70% train · 15% val · 15% test**.
-4. Baselines: **persistencia** y **media móvil**.
-5. Modelos: **MLP** y **GRU** con normalización y early stopping.
-6. Evaluación: **MAE**, **RMSE**, **MAPE** por celda.
-7. Caso de uso energético: niveles **L/M/H** y simulación **ACTIVE/SAVING** (% ahorro y riesgo).
-
----
-
-## Notas
-
-* `cell_id` se refiere a **celdas de malla**, no a estaciones base físicas.
-* `SelectedSquares.kml` documenta los polígonos/IDs usados (Bocconi, Navigli, Duomo, Parco Forlanini, San Bovio, Cava Manara).
-* El preprocesado y la unificación están pensados para ser **idempotentes** y reproducibles.
+1. Reindexar a malla exacta de 10' y decidir cómo tratar huecos (NaN / 0 / ffill).
+2. Construir dataset supervisado por celda (ventana **W=12** → 2h; horizonte **H=6** → 1h).
+3. Split temporal: **70% train · 15% val · 15% test**.
+4. Baselines (persistencia, media móvil) y modelos (MLP/GRU).
+5. Métricas (MAE, RMSE, MAPE) y, después, simulación del caso de uso energético (ACTIVE/SAVING).
