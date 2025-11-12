@@ -1,7 +1,3 @@
-Aquí tienes un bloque de **README.md** listo para pegar, con una explicación más “humana” de qué es cada archivo y para qué lo usarás. He sido breve en `Data/` (los ficheros diarios son equivalentes) y más explícito en `Processing/` y los scripts.
-
----
-
 # MilanTrafficPredictionNN
 
 Predicción de **tráfico de Internet móvil** en Milán (Telecom Italia) sobre una **malla espacial** con intervalos de **10 minutos**.
