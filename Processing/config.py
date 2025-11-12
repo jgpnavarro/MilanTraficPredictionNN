@@ -13,6 +13,9 @@ PROCESSED_DIR = DATA_DIR / "processed"
 # Celdas de interés
 CELL_IDS = [4259, 4456, 4703, 5060, 5085, 5200]
 
+# Zona horaria del dataset (Milán)
+TIMEZONE = "Europe/Rome"
+
 # Nombre de un archivo de prueba
 RAW_FILE_NAME = "sms-call-internet-mi-2013-11-01.txt"
 FILTERED_FILE_NAME = "sms-call-internet-mi-2013-11-01.csv"
