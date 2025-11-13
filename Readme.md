@@ -255,49 +255,6 @@ Modeling/persistence/output/
 
 ---
 
-## Interpretación rápida de métricas
-
-* **MAE / RMSE** (absolutas) → misma unidad que `internet_total`.
-  Útiles para comparar **dentro de la misma celda**.
-
-* **MAPE / wMAPE / sMAPE** (porcentuales) → comparables **entre celdas**.
-
-  * **wMAPE** es más **estable** cuando los valores reales son pequeños.
-  * **sMAPE** es simétrico y menos sesgado por extremos.
-
-* **Y_MEAN** → media de `y_true` evaluado (contexto de escala por split/horizonte).
-
-> Regla práctica: para **comparar modelos en una celda**, mira MAE/RMSE + wMAPE.
-> Para **comparar celdas diferentes**, prioriza wMAPE/sMAPE y usa Y_MEAN para contextualizar.
-
----
-
-## Solución de problemas frecuentes
-
-* **`ModuleNotFoundError: No module named 'Modeling'`**
-  Ejecuta como **módulo** desde la raíz:
-
-  ```bash
-  python -m Modeling.persistence.run_persistence
-  ```
-
-  Asegúrate de que `Modeling/__init__.py` existe.
-
-* **`Y_MEAN` sale `NaN`**
-  Verifica que `evaluate_persistence_split(...)` devuelve la clave `"Y_MEAN"`:
-
-  ```python
-  "Y_MEAN": float(y.mean())
-  ```
-
-  Borra `__pycache__/` si persiste.
-
-* **Resultados en carpetas equivocadas**
-  En este setup, **solo** se guardan en `Modeling/persistence/output/`.
-  Si aparecen en otra ruta, revisa los nombres de archivo usados en el guardado.
-
----
-
 ## Roadmap
 
 * **Media móvil** (`Modeling/moving_average/`): elegir ventana K en **val**, comparar en **test** vs persistencia.
