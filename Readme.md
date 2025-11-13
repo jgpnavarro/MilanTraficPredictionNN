@@ -200,6 +200,38 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
 
 ---
 
+## Visualización (plots)
+
+Se incluye una visualización **por celda y horizonte (H)** que muestra **toda la serie** con los **tres splits (train/val/test) en la misma figura**, sombreados para distinguirlos.
+
+* **Código**:
+
+  * `Modeling/persistence/viz.py` → funciones de pintado (línea **sólida** y con contorno para **Real**, **discontinua** y más fina para **Predicción**; control de `figsize` y `dpi`).
+  * `Modeling/persistence/run_plots.py` → orquestador de plots (configurado para pintar **toda la serie** con splits sombreados).
+
+* **Salida**:
+
+  ```
+  Modeling/persistence/output/plots_all/<cell_id>/H{H}_ALL.png
+  ```
+
+  (Una imagen por celda y por H.)
+
+* **Cómo ejecutar** (desde la raíz):
+
+  ```bash
+  python -m Modeling.persistence.run_plots
+  ```
+
+  *(El archivo está configurado para el modo **"all"**. Si cambias estilos/tamaño, ajusta `FIGSIZE_ALL` y `DPI_ALL` en `run_plots.py`.)*
+
+* **Notas**:
+
+  * En series largas, la superposición puede verse “suave” por la alta correlación temporal; subir `DPI_ALL` o aumentar `FIGSIZE_ALL` mejora la legibilidad.
+  * El sombreado de **train/val/test** evita confusiones al interpretar un único gráfico por celda/H.
+
+---
+
 ## Requisitos
 
 * Python **3.10+**
