@@ -1,164 +1,307 @@
+---
+
 # MilanTrafficPredictionNN
 
 Predicción de **tráfico de Internet móvil** en Milán (Telecom Italia) sobre una **malla espacial** con intervalos de **10 minutos**.
-El repositorio incluye el pipeline de **preprocesado**, la **unificación** de series por celda y utilidades para preparar los datos antes del modelado.
+El repositorio incluye el pipeline de **preprocesado**, la **unificación** por celda y una primera fase de **modelado** (baseline de **persistencia**), con métricas y reporting por celda.
 
 ---
 
-## Estructura del proyecto (¿qué hay en cada sitio?)
+## Estructura del proyecto
 
 ```
 MilanTraficPredictionNN/
 ├─ Data/
 │  ├─ raw/
 │  └─ processed/
+│     ├─ all_cells.csv
+│     └─ by_cell/
+│        ├─ cell_4259.csv
+│        ├─ cell_4456.csv
+│        └─ ...
 ├─ Mapa Squares Milán/
+│  └─ SelectedSquares.kml
 ├─ Processing/
 │  ├─ __init__.py
 │  ├─ config.py
 │  ├─ process_cells_internet.py
 │  └─ timeseries_dataset.py
+├─ Modeling/
+│  ├─ __init__.py
+│  ├─ config.py
+│  ├─ data_access.py
+│  ├─ targets.py
+│  ├─ metrics.py
+│  ├─ reporting.py
+│  └─ persistence/
+│     ├─ __init__.py
+│     ├─ persistence.py         ← implementación del modelo (persistencia)
+│     ├─ run_persistence.py     ← orquestador del experimento
+│     └─ output/                ← **único** directorio de salida de persistencia
 ├─ run_pipeline.py
 └─ Readme.md
 ```
 
-### `Data/`
+---
 
-* **`raw/`**: ficheros **originales** por día (`sms-call-internet-mi-YYYY-MM-DD.txt`).
-  Todos comparten el mismo formato y cubren del **2013-11-01** al **2014-01-01**.
-* **`processed/`**: resultados del preprocesado:
+## Datos (`Data/`)
 
-  * `*_internet_total.csv` → **un CSV por día** ya filtrado a las celdas de interés y con la métrica **`internet_total`** cada 10 minutos.
-  * `all_cells.csv` → **todo junto** (todas las fechas y celdas) en una **tabla larga**: `cell_id, datetime, internet_total`.
-  * `by_cell/` → **un CSV por celda** (`cell_<id>.csv`) con su serie temporal completa (todos los días seguidos).
+* **`raw/`**: ficheros originales por día (`sms-call-internet-mi-YYYY-MM-DD.txt`). Cobertura: **2013-11-01 → 2014-01-01**.
+* **`processed/`** (salida del preprocesado):
 
-> Idea rápida: trabajas **a partir de `processed/`**. Los `raw/` solo sirven como origen.
+  * `*_internet_total.csv` → **un CSV por día** con `internet_total` cada 10 minutos.
+  * `all_cells.csv` → **tabla larga** con todas las celdas: `cell_id, datetime, internet_total`.
+  * `by_cell/` → **un CSV por celda** (`cell_<id>.csv`) con su serie completa ordenada por tiempo.
 
-### `Mapa Squares Milán/`
+> El modelado trabaja **siempre** desde `Data/processed/`. Los `raw/` solo son origen.
 
-* **`SelectedSquares.kml`**: polígonos y **IDs de celda** (grid) de las zonas analizadas (Bocconi, Navigli, Duomo, Parco Forlanini, San Bovio, Cava Manara).
-  No es un dato “operativo” del pipeline, pero documenta claramente qué celdas se usan.
+---
 
-### `Processing/`
+## Mapa (`Mapa Squares Milán/`)
 
-* **`__init__.py`**: marca esta carpeta como **paquete Python** (permite usar `python -m Processing...`).
-* **`config.py`**: **único punto de configuración**:
+* **`SelectedSquares.kml`**: polígonos e **IDs de celda** (grid) de las zonas analizadas (Bocconi, Navigli, Duomo, etc.). Documento de referencia geográfica (no es entrada del pipeline).
 
-  * rutas (`Data/`, `raw/`, `processed/`),
-  * **lista de `CELL_IDS`** a filtrar,
-  * zona horaria (`TIMEZONE="Europe/Rome"`) para convertir correctamente desde epoch ms.
-* **`process_cells_internet.py`**: **preprocesado diario**.
-  Lee cada `.txt` de `raw/`, convierte el tiempo a `datetime` local, filtra por `CELL_IDS` y **agrega `internet_total`** por `(cell_id, datetime)` en pasos de 10'.
-  **Salida**: `*_internet_total.csv` en `processed/`.
-* **`timeseries_dataset.py`**: **unificación de series**.
-  Lee todos los `*_internet_total.csv`, normaliza columnas, concatena y **ordena**.
-  **Salidas**:
+---
 
-  * `processed/all_cells.csv` (tabla larga con todo),
-  * `processed/by_cell/cell_<id>.csv` (una serie por celda).
+## Preprocesado (`Processing/`)
 
-### Raíz del repo
+* **`config.py`**
 
-* **`run_pipeline.py`**: orquesta el **preprocesado inicial** (del `raw/` a `processed/*_internet_total.csv`).
-  Se usa una vez (o cuando cambien los `raw/`/config).
-* **`Readme.md`**: este documento.
+  * Rutas (`DATA_DIR`, `RAW_DIR`, `PROCESSED_DIR`).
+  * `CELL_IDS` (lista de celdas a conservar).
+  * `TIMEZONE="Europe/Rome"` (conversión correcta desde epoch ms).
+
+* **`process_cells_internet.py`**
+  Lee `raw/`, convierte tiempos a `datetime` local, filtra por `CELL_IDS` y **agrega `internet_total`** por `(cell_id, datetime)` en pasos de 10’.
+  **Salida:** `Data/processed/*_internet_total.csv`.
+
+* **`timeseries_dataset.py`**
+  Concatena todos los diarios, normaliza y **ordena**.
+  **Salidas:**
+
+  * `Data/processed/all_cells.csv`
+  * `Data/processed/by_cell/cell_<id>.csv`
+
+* **`__init__.py`**
+  Marca la carpeta como paquete Python.
+
+---
+
+## Modelado (`Modeling/`)
+
+Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV de `Data/processed/`.
+
+### Configuración (`Modeling/config.py`)
+
+* `H_LIST = [1, 6]` → horizontes (10’ y 60’).
+* `SPLIT = (0.70, 0.15, 0.15)` → cortes temporales train/val/test.
+* `FREQ = "10T"` → frecuencia esperada (solo informativa aquí).
+* `PROCESSED_DIR` → ruta a `Data/processed/`.
+* (No se guardan salidas aquí; persistencia guarda en su subcarpeta).
+
+### Acceso a datos (`Modeling/data_access.py`)
+
+* **Objetivo:** leer series por celda ya procesadas y dividir por tiempo.
+* **Funciones clave:**
+
+  * `iter_cells_by_file()` → genera `(cell_id: int, serie: pd.Series)` leyendo `Data/processed/by_cell/cell_*.csv`.
+    La serie es `internet_total` indexada por `datetime`.
+  * `split_series(serie)` → devuelve `s_train, s_val, s_test` (70/15/15) **por posición temporal**.
+
+### Construcción de objetivos (`Modeling/targets.py`)
+
+* **Objetivo:** preparar pares supervisados `(X, y)` para un horizonte `H`.
+* **Funciones:**
+
+  * `make_xy_for_horizon(series, H)` →
+    `X(t)=series(t)`, `y(t)=series(t+H)` (via `shift(-H)`), recortando los últimos `H` puntos.
+  * `make_xy_for_horizon_splits(s_train, s_val, s_test, H)` → aplica lo anterior a cada split y retorna un diccionario:
+    `{"train": (X_tr,y_tr), "val": (X_va,y_va), "test": (X_te,y_te)}`.
+
+### Métricas (`Modeling/metrics.py`)
+
+* **Objetivo:** calcular errores punto a punto entre `y_true` y `y_pred`.
+* **Disponibles:**
+
+  * **MAE** (error absoluto medio) y **RMSE** (raíz del error cuadrático medio) → **absolutos**, misma unidad que `internet_total`.
+  * **MAPE** (porcentaje punto a punto; sensible a valores pequeños).
+  * **wMAPE** (porcentaje ponderado, más estable con reales pequeños).
+  * **sMAPE** (porcentaje simétrico, menos sesgo en extremos).
+
+### Reporting (`Modeling/reporting.py`)
+
+* **Objetivo:** agregar resultados por **celda/horizonte/split** y exportar.
+* **Funciones clave:**
+
+  * `rows_from_eval_dict(cell_id, horizon, eval_dict)` → transforma el dict de métricas por split en **filas homogéneas**.
+    Columnas estándar:
+    `cell_id, horizon, split, n, MAE, RMSE, MAPE, wMAPE, sMAPE, Y_MEAN`
+  * `aggregate_results(all_rows)` → DataFrame con todas las filas.
+  * `print_summary(df)` → resumen por `horizon/split` (medias) + `n_total`.
+  * `print_per_cell(df, cells=None, columns=None)` → detalle por celda (opcional filtro de celdas/columnas).
+
+> **Importante**: las funciones de guardado **no** se usan para persistencia, porque persistencia guarda **solo** en su subcarpeta `Modeling/persistence/output/` (ver abajo).
+
+---
+
+## Baseline: Persistencia (`Modeling/persistence/`)
+
+### Implementación (`Modeling/persistence/persistence.py`)
+
+* **Regla del modelo:** `ŷ(t+H) = y(t)` (sin entrenamiento, sin hiperparámetros).
+* **Funciones:**
+
+  * `predict_persistence(X)` → devuelve `X` como predicción.
+  * `evaluate_persistence_split(X, y)` → calcula métricas en un split:
+    `n, MAE, RMSE, MAPE, wMAPE, sMAPE, Y_MEAN` (donde `Y_MEAN` es la **media de `y_true` evaluado**).
+  * `evaluate_persistence_splits(s_train, s_val, s_test, H)` → aplica a los tres splits para un `H`.
+
+### Orquestador (`Modeling/persistence/run_persistence.py`)
+
+* **Flujo:**
+
+  1. Itera celdas con `data_access.iter_cells_by_file()`.
+  2. Divide cada serie con `data_access.split_series()`.
+  3. Para cada `H` en `H_LIST`:
+
+     * Construye `(X, y)` con `targets`.
+     * Predice con persistencia (`ŷ = X`).
+     * Calcula métricas por split.
+     * Convierte a filas (reporting) y acumula.
+  4. Agrega a un DataFrame y:
+
+     * imprime **resumen global** por `horizon/split`,
+     * imprime **detalle por celda**.
+  5. **Guarda los CSV en** `Modeling/persistence/output/`
+
+     * `persistence_results.csv` → todas las celdas, horizontes y splits.
+     * `persistence_cell_<cell_id>.csv` → un CSV por celda.
+* **Ejecución:**
+
+  ```bash
+  python -m Modeling.persistence.run_persistence
+  ```
+
+  > Ejecutar **siempre** desde la **raíz** del repo.
+
+### Salidas (`Modeling/persistence/output/`)
+
+* **`persistence_results.csv`** (global):
+
+  ```
+  cell_id,horizon,split,n,MAE,RMSE,MAPE,wMAPE,sMAPE,Y_MEAN
+  4259,1,train,6248,35.5383,55.3115,10.9738,10.7086,10.7675, ...
+  4259,1,val,  1338,14.9333,21.4796, 7.2451, 6.8321, 7.1878, ...
+  4259,1,test, 1339, 8.1264,10.5815, 9.6856, 9.4915, 9.6040, ...
+  4259,6,train,6243,62.6277,91.9753,19.2594,18.8664,18.9206, ...
+  ...
+  ```
+* **`persistence_cell_<id>.csv`** (por celda): todas sus filas (horizonte × split).
 
 ---
 
 ## Requisitos
 
 * Python **3.10+**
-* Librerías: `pandas`
-  *(recomendado usar entorno virtual: `python -m venv .venv && .venv\Scripts\activate && pip install pandas` en Windows)*
+* Librerías: `pandas`, `numpy`
+* (Opcional) `matplotlib`/`notebook` para exploración
+
+> Recomendado entorno virtual (Windows):
+>
+> ```bash
+> python -m venv .venv
+> .venv\Scripts\activate
+> pip install pandas numpy
+> ```
 
 ---
 
-## Configuración rápida (`Processing/config.py`)
+## Comandos típicos
 
-```python
-from pathlib import Path
+> Ejecutar siempre desde la **raíz** del repo.
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = BASE_DIR / "Data"
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
-
-# Celdas/zonas de interés (IDs de la malla)
-CELL_IDS = [4259, 4456, 4703, 5060, 5085, 5200]
-
-# Zona horaria del dataset para convertir epoch ms a hora local
-TIMEZONE = "Europe/Rome"
-```
-
----
-
-## Comandos habituales
-
-> Ejecutar **siempre desde la raíz del repo**.
-
-### 1) Preprocesar los brutos (genera `*_internet_total.csv`)
+1. **Preprocesar** (genera diarios `*_internet_total.csv`):
 
 ```bash
 python run_pipeline.py
 ```
 
-### 2) Unificar todo y crear “una serie por celda”
+2. **Unificar** y crear “una serie por celda”:
 
 ```bash
 python -m Processing.timeseries_dataset
 ```
 
-Resultados:
+Salidas:
 
 * `Data/processed/all_cells.csv`
 * `Data/processed/by_cell/cell_<id>.csv`
 
----
+3. **Evaluar Persistencia** (H=1 y H=6):
 
-## Formato de salida (lo esencial)
-
-**`all_cells.csv`** (tabla larga):
-
-```
-cell_id,datetime,internet_total
-4259,2013-11-01 00:00:00,261.68
-4259,2013-11-01 00:10:00,189.42
-...
-4260,2013-11-01 00:00:00,210.35
-...
+```bash
+python -m Modeling.persistence.run_persistence
 ```
 
-**`by_cell/cell_4259.csv`** (una serie por celda):
+Salidas en:
 
 ```
-cell_id,datetime,internet_total
-4259,2013-11-01 00:00:00,261.68
-4259,2013-11-01 00:10:00,189.42
-...
-```
-
-> **`datetime`** está en hora local **Europe/Rome** tras convertir desde epoch ms.
-
----
-
-## Uso programático (cargar en Python)
-
-```python
-from Processing.timeseries_dataset import load_unified, get_cell_timeseries
-
-all_df = load_unified()                  # tabla larga con todas las celdas y fechas
-df_4259 = get_cell_timeseries(all_df, 4259)  # serie de una celda (índice datetime)
-
-print(all_df.head())
-print(df_4259.head())
+Modeling/persistence/output/
+  ├─ persistence_results.csv
+  ├─ persistence_cell_4259.csv
+  ├─ persistence_cell_4456.csv
+  └─ ...
 ```
 
 ---
 
-## Siguientes pasos (resumen)
+## Interpretación rápida de métricas
 
-1. Reindexar a malla exacta de 10' y decidir cómo tratar huecos (NaN / 0 / ffill).
-2. Construir dataset supervisado por celda (ventana **W=12** → 2h; horizonte **H=6** → 1h).
-3. Split temporal: **70% train · 15% val · 15% test**.
-4. Baselines (persistencia, media móvil) y modelos (MLP/GRU).
-5. Métricas (MAE, RMSE, MAPE) y, después, simulación del caso de uso energético (ACTIVE/SAVING).
+* **MAE / RMSE** (absolutas) → misma unidad que `internet_total`.
+  Útiles para comparar **dentro de la misma celda**.
+
+* **MAPE / wMAPE / sMAPE** (porcentuales) → comparables **entre celdas**.
+
+  * **wMAPE** es más **estable** cuando los valores reales son pequeños.
+  * **sMAPE** es simétrico y menos sesgado por extremos.
+
+* **Y_MEAN** → media de `y_true` evaluado (contexto de escala por split/horizonte).
+
+> Regla práctica: para **comparar modelos en una celda**, mira MAE/RMSE + wMAPE.
+> Para **comparar celdas diferentes**, prioriza wMAPE/sMAPE y usa Y_MEAN para contextualizar.
+
+---
+
+## Solución de problemas frecuentes
+
+* **`ModuleNotFoundError: No module named 'Modeling'`**
+  Ejecuta como **módulo** desde la raíz:
+
+  ```bash
+  python -m Modeling.persistence.run_persistence
+  ```
+
+  Asegúrate de que `Modeling/__init__.py` existe.
+
+* **`Y_MEAN` sale `NaN`**
+  Verifica que `evaluate_persistence_split(...)` devuelve la clave `"Y_MEAN"`:
+
+  ```python
+  "Y_MEAN": float(y.mean())
+  ```
+
+  Borra `__pycache__/` si persiste.
+
+* **Resultados en carpetas equivocadas**
+  En este setup, **solo** se guardan en `Modeling/persistence/output/`.
+  Si aparecen en otra ruta, revisa los nombres de archivo usados en el guardado.
+
+---
+
+## Roadmap
+
+* **Media móvil** (`Modeling/moving_average/`): elegir ventana K en **val**, comparar en **test** vs persistencia.
+* **Redes neuronales** (MLP/GRU) con **ventanas W=12** y **H∈{1,6}**, reutilizando `data_access`, `targets`, `metrics` y `reporting`.
+* Informe por **celda** con wMAPE/sMAPE + MAE/RMSE y análisis por **hora del día**.
+
+---
