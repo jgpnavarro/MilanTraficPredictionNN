@@ -84,7 +84,7 @@ RAW_DIR = DATA_DIR / "raw"
 PROCESSED_DIR = DATA_DIR / "processed"
 
 # Celdas/zonas de interés (IDs de la malla)
-CELL_IDS = [4259, 4260, 4359, 4360, 4455, 4456, 4703, 5060, 5085, 5200]
+CELL_IDS = [4259, 4456, 4703, 5060, 5085, 5200]
 
 # Zona horaria del dataset para convertir epoch ms a hora local
 TIMEZONE = "Europe/Rome"
