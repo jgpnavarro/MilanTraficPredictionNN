@@ -35,9 +35,11 @@ MilanTraficPredictionNN/
 │  ├─ reporting.py
 │  └─ persistence/
 │     ├─ __init__.py
-│     ├─ persistence.py         ← implementación del modelo (persistencia)
-│     ├─ run_persistence.py     ← orquestador del experimento
-│     └─ output/                ← **único** directorio de salida de persistencia
+│     ├─ persistence.py         
+│     ├─ run_persistence.py
+|     ├─ viz.py
+|     ├─ run_plots.py 
+│     └─ output/                
 ├─ run_pipeline.py
 └─ Readme.md
 ```
