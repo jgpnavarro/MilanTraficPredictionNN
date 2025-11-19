@@ -68,6 +68,7 @@ MilanTrafficPredictionNN/
 
 
 ```
+---
 
 ## Datos (`Data/`)
 
@@ -91,28 +92,28 @@ Salidas del pipeline de preprocesado:
 * `all_cells.csv`
   Tabla “larga” con todas las celdas y tiempos:
 
-  ---text
+  ```text
   cell_id,datetime,internet_total
   4259,2013-11-01 00:00:00,261.68
   4259,2013-11-01 00:10:00,189.42
   ...
-  ---
+  ```
 
 * `by_cell/`
   Un CSV **por celda** con su serie ya limpia y ordenada:
 
-  ---text
+  ```text
   Data/processed/by_cell/cell_4259.csv
   Data/processed/by_cell/cell_4456.csv
   ...
-  ---
+  ```
 
   Cada fichero contiene una única serie de `internet_total` indexada por `datetime`.
 
 > Todo el código de modelado (baselines y redes) trabaja **siempre** desde `Data/processed/`.
 > `raw/` se usa sólo en el preprocesado.
 
----
+```
 
 ## Mapa (`Mapa Squares Milán/`)
 
@@ -120,7 +121,7 @@ Salidas del pipeline de preprocesado:
   Polígonos e **IDs de celda** (grid) de las zonas analizadas: Bocconi, Navigli, Duomo, etc.
   Es un **documento de referencia geográfica**, no es entrada del pipeline de datos.
 
----
+```
 
 ## Preprocesado (`Processing/`)
 
@@ -171,7 +172,7 @@ Unifica los diarios en estructuras listas para el modelado:
 
 Marca la carpeta como paquete Python (no contiene lógica de negocio).
 
----
+```
 
 ## Modelado general (`Modeling/`)
 
@@ -184,28 +185,28 @@ Parámetros y rutas de modelado:
 
 * Horizontes de predicción (en pasos de 10 minutos):
 
-  ---python
+  ```python
   H_LIST = [1, 6]       # 10 minutos y 60 minutos
-  ---
+  ```
 
 * Split temporal (proporción):
 
-  ---python
+  ```python
   SPLIT = (0.70, 0.15, 0.15)   # train / val / test
-  ---
+  ```
 
 * Frecuencia informativa:
 
-  ---python
+  ```python
   FREQ = "10T"   # 10 minutes
-  ---
+  ```
 
 * Rutas a datos procesados:
 
-  ---python
+  ```python
   PROCESSED_DIR = Data/processed/
   BY_CELL_DIR   = Data/processed/by_cell/
-  ---
+  ```
 
 * Parámetros específicos de salidas para baselines y redes (directorios de resultados y modelos).
 
@@ -218,18 +219,18 @@ Funciones clave:
 * `iter_cells_by_file()`
   Itera sobre todos los ficheros de `by_cell/` y devuelve tuplas:
 
-  ---python
+  ```python
   for cell_id, series in iter_cells_by_file():
       # cell_id: int
       # series: pd.Series con DatetimeIndex y valores de internet_total
-  ---
+  ```
 
 * `split_series(series)`
   Divide la serie completa de una celda en tres splits temporales:
 
-  ---python
+  ```python
   s_train, s_val, s_test = split_series(series)
-  ---
+  ```
 
 donde `SPLIT=(0.70,0.15,0.15)` se respeta por índice temporal (no mezcla el orden).
 
@@ -251,13 +252,13 @@ Funciones principales:
 
   Aplica la misma lógica a cada split y devuelve:
 
-  ---python
+  ```python
   {
       "train": (X_train, y_train),
       "val":   (X_val, y_val),
       "test":  (X_test, y_test),
   }
-  ---
+  ```
 
 * `make_windowed_xy_for_horizon_splits(s_train, s_val, s_test, H, input_window)`
 
@@ -265,9 +266,9 @@ Funciones principales:
 
   * Para cada instante futuro `t+H`, la entrada es:
 
-    ---text
+    ```text
     [y(t - input_window + 1), ..., y(t - 1), y(t)]
-    ---
+    ```
 
   * La salida es `y(t+H)`.
 
@@ -298,17 +299,17 @@ Funciones:
 
   Recibe un diccionario de métricas por split:
 
-  ---python
+  ```python
   eval_dict = {
       "train": {"n": ..., "MAE": ..., ..., "Y_MEAN": ...},
       "val":   {...},
       "test":  {...},
   }
-  ---
+  ```
 
   y devuelve una lista de filas (dicts) con columnas:
 
-  ---text
+  ```text
   cell_id, horizon, split, n,
   MAE, RMSE, MAPE, wMAPE, sMAPE, Y_MEAN
   ```
