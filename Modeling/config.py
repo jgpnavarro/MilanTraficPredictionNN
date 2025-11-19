@@ -32,6 +32,10 @@ PERSISTENCE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 MOVING_AVG_OUTPUT_DIR = BASE_DIR / "Modeling" / "baselines" / "moving_average" / "output"
 MOVING_AVG_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+NN_BASE_DIR = BASE_DIR / "Modeling" / "neural_networks"
+MLP_OUTPUT_DIR = NN_BASE_DIR / "mlp" / "output"
+MLP_MODELS_DIR = NN_BASE_DIR / "mlp" / "models"
+
 
 # Localización de los datos procesados. Se intenta tomar de Processing.config.
 # Si no está disponible, se recurre a la ruta relativa por defecto "Data/processed".
