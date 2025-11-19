@@ -122,7 +122,7 @@ Salidas del pipeline de preprocesado:
   Es un **documento de referencia geográfica**, no es entrada del pipeline de datos.
 
 ```
-
+---
 ## Preprocesado (`Processing/`)
 
 ### `Processing/config.py`
@@ -172,7 +172,7 @@ Unifica los diarios en estructuras listas para el modelado:
 
 Marca la carpeta como paquete Python (no contiene lógica de negocio).
 
-```
+---
 
 ## Modelado general (`Modeling/`)
 
@@ -376,7 +376,7 @@ Funciones de **normalización por máximo** por celda:
 
 Esta normalización se utiliza especialmente en las redes neuronales.
 
-```
+---
 
 ## Baselines (`Modeling/baselines/`)
 
@@ -474,7 +474,7 @@ Visualización de persistencia:
 python -m Modeling.baselines.persistence.run_plots
 ```
 
-```
+---
 
 ### Media Móvil (`Modeling/baselines/moving_average/`)
 
@@ -560,7 +560,7 @@ Visualización similar a persistencia, pero para la media móvil:
 python -m Modeling.baselines.moving_average.run_plots
 ```
 
-```
+---
 
 ## Redes Neuronales (`Modeling/neural_networks/`)
 
@@ -709,7 +709,7 @@ Visualiza el comportamiento del MLP por celda:
 python -m Modeling.neural_networks.mlp.run_plots
 ```
 
-```
+---
 
 ## Requisitos
 
@@ -735,7 +735,7 @@ python -m Modeling.neural_networks.mlp.run_plots
 > pip install -r requirements.txt  # si se define
 > ```
 
-```
+---
 
 ## Comandos típicos
 
@@ -834,7 +834,7 @@ Modeling/neural_networks/mlp/output/plots_all/
   └─ ...
 ```
 
-```
+---
 
 ## Notas y posibles extensiones
 
