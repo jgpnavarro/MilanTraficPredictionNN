@@ -23,13 +23,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from Baselines.config import (
+from Modeling.config import (
     H_LIST,
     MOVING_AVG_WINDOWS,
     MOVING_AVG_OUTPUT_DIR,
 )
-from Baselines.data_access import iter_cells_by_file, split_series
-from Baselines.moving_average.moving_average import moving_average_forecast
+from Modeling.data_access import iter_cells_by_file, split_series
+from Modeling.moving_average.moving_average import moving_average_forecast
 
 
 def _get_split_ranges(s_train: pd.Series,

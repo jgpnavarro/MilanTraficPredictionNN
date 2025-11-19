@@ -8,10 +8,10 @@ Este módulo:
     - Agrega los resultados y los guarda en CSV.
 
 Depende de:
-    - Baselines.config           (H_LIST, MOVING_AVG_WINDOWS, MOVING_AVG_OUTPUT_DIR)
-    - Baselines.data_access      (iter_cells_by_file, split_series)
-    - Baselines.moving_average   (evaluate_moving_average_splits)
-    - Baselines.reporting        (rows_from_eval_dict, aggregate_results,
+    - Modeling.config           (H_LIST, MOVING_AVG_WINDOWS, MOVING_AVG_OUTPUT_DIR)
+    - Modeling.data_access      (iter_cells_by_file, split_series)
+    - Modeling.moving_average   (evaluate_moving_average_splits)
+    - Modeling.reporting        (rows_from_eval_dict, aggregate_results,
                                  print_summary, print_per_cell,
                                  save_results, save_per_cell_csv)
 """
@@ -22,14 +22,14 @@ from typing import List, Dict
 
 import pandas as pd
 
-from Baselines.config import (
+from Modeling.config import (
     H_LIST,
     MOVING_AVG_WINDOWS,
     MOVING_AVG_OUTPUT_DIR,
 )
-from Baselines.data_access import iter_cells_by_file, split_series
-from Baselines.moving_average.moving_average import evaluate_moving_average_splits
-from Baselines.reporting import (
+from Modeling.data_access import iter_cells_by_file, split_series
+from Modeling.moving_average.moving_average import evaluate_moving_average_splits
+from Modeling.reporting import (
     rows_from_eval_dict,
     aggregate_results,
     print_summary,

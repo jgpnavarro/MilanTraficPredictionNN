@@ -20,8 +20,8 @@ from __future__ import annotations
 from typing import Dict
 import pandas as pd
 
-from Baselines.targets import make_xy_for_horizon_splits
-from Baselines.metrics import mae, rmse, mape, wmape, smape #, nrmse_iqr, nrmae_median
+from Modeling.targets import make_xy_for_horizon_splits
+from Modeling.metrics import mae, rmse, mape, wmape, smape #, nrmse_iqr, nrmae_median
 
 def predict_persistence(X: pd.Series) -> pd.Series:
     """

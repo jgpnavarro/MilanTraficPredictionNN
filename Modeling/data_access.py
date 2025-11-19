@@ -21,7 +21,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from Baselines.config import PROCESSED_DIR, SPLIT
+from Modeling.config import PROCESSED_DIR, SPLIT
 
 
 # -----------------------------------------------------------------------------

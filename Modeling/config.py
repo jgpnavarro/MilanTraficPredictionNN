@@ -26,10 +26,10 @@ SAVE_RESULTS = True
 # Carpeta de salida para resultados de modelado (no datos crudos).
 BASE_DIR = Path(__file__).resolve().parents[1]
 
-PERSISTENCE_OUTPUT_DIR = BASE_DIR / "Baselines" / "persistence"/ "output"
+PERSISTENCE_OUTPUT_DIR = BASE_DIR / "Modeling" / "persistence"/ "output"
 PERSISTENCE_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-MOVING_AVG_OUTPUT_DIR = BASE_DIR / "Baselines" / "moving_average" / "output"
+MOVING_AVG_OUTPUT_DIR = BASE_DIR / "Modeling" / "moving_average" / "output"
 MOVING_AVG_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
