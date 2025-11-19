@@ -6,7 +6,7 @@ from typing import List, Dict
 
 from Modeling.config import H_LIST, PERSISTENCE_OUTPUT_DIR
 from Modeling.data_access import iter_cells_by_file, split_series
-from Modeling.persistence.persistence import evaluate_persistence_splits
+from Modeling.baselines.persistence.persistence import evaluate_persistence_splits
 from Modeling.reporting import (
     rows_from_eval_dict,
     aggregate_results,

@@ -29,7 +29,7 @@ from Modeling.config import (
     MOVING_AVG_OUTPUT_DIR,
 )
 from Modeling.data_access import iter_cells_by_file, split_series
-from Modeling.moving_average.moving_average import moving_average_forecast
+from Modeling.baselines.moving_average.moving_average import moving_average_forecast
 
 
 def _get_split_ranges(s_train: pd.Series,

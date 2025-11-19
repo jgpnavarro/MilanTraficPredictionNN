@@ -28,7 +28,7 @@ from Modeling.config import (
     MOVING_AVG_OUTPUT_DIR,
 )
 from Modeling.data_access import iter_cells_by_file, split_series
-from Modeling.moving_average.moving_average import evaluate_moving_average_splits
+from Modeling.baselines.moving_average.moving_average import evaluate_moving_average_splits
 from Modeling.reporting import (
     rows_from_eval_dict,
     aggregate_results,
