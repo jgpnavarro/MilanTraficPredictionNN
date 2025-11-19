@@ -451,6 +451,10 @@ Lee los ficheros crudos de `raw/`, convierte tiempos y agrega tráfico de intern
 
 ### `Processing/timeseries_dataset.py`
 
+Ejecuta lo de arriba
+
+### `Processing/timeseries_dataset.py`
+
 Unifica los diarios en estructuras listas para el modelado:
 
 * Concatena todos los `*_internet_total.csv`.
@@ -1038,7 +1042,7 @@ python -m Modeling.neural_networks.mlp.run_plots
 ### 1. Preprocesar datos crudos → diarios `*_internet_total.csv`
 
 ```bash
-python run_pipeline.py
+python -m Processing.run_processing
 ```
 
 ### 2. Unificar en `all_cells` y `by_cell`
