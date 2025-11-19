@@ -1,4 +1,5 @@
 ---
+'''
 # MilanTrafficPredictionNN
 
 Predicción de **tráfico de Internet móvil** en Milán (Telecom Italia) sobre una **malla espacial** con intervalos de **10 minutos**.
@@ -11,6 +12,7 @@ El repositorio incluye:
 - Primera fase de **Redes Neuronales** (MLP por celda, con normalización y features temporales).
 - Métricas y reporting por celda, horizonte y split (train/val/test).
 - Visualización de series reales vs predicción con sombreado de splits.
+'''
 ---
 
 ## Estructura del proyecto
