@@ -1,4 +1,4 @@
-
+---
 # MilanTrafficPredictionNN
 
 Predicción de **tráfico de Internet móvil** en Milán (Telecom Italia) sobre una **malla espacial** con intervalos de **10 minutos**.
@@ -11,8 +11,7 @@ El repositorio incluye:
 - Primera fase de **Redes Neuronales** (MLP por celda, con normalización y features temporales).
 - Métricas y reporting por celda, horizonte y split (train/val/test).
 - Visualización de series reales vs predicción con sombreado de splits.
-
-
+---
 
 ## Estructura del proyecto
 
@@ -67,6 +66,7 @@ MilanTrafficPredictionNN/
 │        └─ output/
 └─ Readme.md
 
+
 ```
 
 ## Datos (`Data/`)
@@ -112,7 +112,7 @@ Salidas del pipeline de preprocesado:
 > Todo el código de modelado (baselines y redes) trabaja **siempre** desde `Data/processed/`.
 > `raw/` se usa sólo en el preprocesado.
 
-
+```
 
 ## Mapa (`Mapa Squares Milán/`)
 
@@ -120,7 +120,7 @@ Salidas del pipeline de preprocesado:
   Polígonos e **IDs de celda** (grid) de las zonas analizadas: Bocconi, Navigli, Duomo, etc.
   Es un **documento de referencia geográfica**, no es entrada del pipeline de datos.
 
-
+```
 
 ## Preprocesado (`Processing/`)
 
@@ -171,7 +171,7 @@ Unifica los diarios en estructuras listas para el modelado:
 
 Marca la carpeta como paquete Python (no contiene lógica de negocio).
 
-
+```
 
 ## Modelado general (`Modeling/`)
 
@@ -375,7 +375,7 @@ Funciones de **normalización por máximo** por celda:
 
 Esta normalización se utiliza especialmente en las redes neuronales.
 
-
+```
 
 ## Baselines (`Modeling/baselines/`)
 
@@ -473,7 +473,7 @@ Visualización de persistencia:
 python -m Modeling.baselines.persistence.run_plots
 ```
 
-
+```
 
 ### Media Móvil (`Modeling/baselines/moving_average/`)
 
@@ -559,7 +559,7 @@ Visualización similar a persistencia, pero para la media móvil:
 python -m Modeling.baselines.moving_average.run_plots
 ```
 
-
+```
 
 ## Redes Neuronales (`Modeling/neural_networks/`)
 
@@ -708,7 +708,7 @@ Visualiza el comportamiento del MLP por celda:
 python -m Modeling.neural_networks.mlp.run_plots
 ```
 
-
+```
 
 ## Requisitos
 
@@ -734,7 +734,7 @@ python -m Modeling.neural_networks.mlp.run_plots
 > pip install -r requirements.txt  # si se define
 > ```
 
-
+```
 
 ## Comandos típicos
 
@@ -833,7 +833,7 @@ Modeling/neural_networks/mlp/output/plots_all/
   └─ ...
 ```
 
-
+```
 
 ## Notas y posibles extensiones
 
