@@ -67,8 +67,7 @@ MilanTrafficPredictionNN/
 │        └─ output/
 └─ Readme.md
 
-
-
+```
 
 ## Datos (`Data/`)
 
