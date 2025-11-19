@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from Modeling.config import SAVE_RESULTS
+from Baselines.config import SAVE_RESULTS
 
 
 # Columnas estándar del DataFrame de resultados

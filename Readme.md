@@ -26,7 +26,7 @@ MilanTraficPredictionNN/
 │  ├─ config.py
 │  ├─ process_cells_internet.py
 │  └─ timeseries_dataset.py
-├─ Modeling/
+├─ Baselines/
 │  ├─ __init__.py
 │  ├─ config.py
 │  ├─ data_access.py
@@ -89,11 +89,11 @@ MilanTraficPredictionNN/
 
 ---
 
-## Modelado (`Modeling/`)
+## Modelado (`Baselines/`)
 
 Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV de `Data/processed/`.
 
-### Configuración (`Modeling/config.py`)
+### Configuración (`Baselines/config.py`)
 
 * `H_LIST = [1, 6]` → horizontes (10’ y 60’).
 * `SPLIT = (0.70, 0.15, 0.15)` → cortes temporales train/val/test.
@@ -101,7 +101,7 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
 * `PROCESSED_DIR` → ruta a `Data/processed/`.
 * (No se guardan salidas aquí; persistencia guarda en su subcarpeta).
 
-### Acceso a datos (`Modeling/data_access.py`)
+### Acceso a datos (`Baselines/data_access.py`)
 
 * **Objetivo:** leer series por celda ya procesadas y dividir por tiempo.
 * **Funciones clave:**
@@ -110,7 +110,7 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
     La serie es `internet_total` indexada por `datetime`.
   * `split_series(serie)` → devuelve `s_train, s_val, s_test` (70/15/15) **por posición temporal**.
 
-### Construcción de objetivos (`Modeling/targets.py`)
+### Construcción de objetivos (`Baselines/targets.py`)
 
 * **Objetivo:** preparar pares supervisados `(X, y)` para un horizonte `H`.
 * **Funciones:**
@@ -120,7 +120,7 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
   * `make_xy_for_horizon_splits(s_train, s_val, s_test, H)` → aplica lo anterior a cada split y retorna un diccionario:
     `{"train": (X_tr,y_tr), "val": (X_va,y_va), "test": (X_te,y_te)}`.
 
-### Métricas (`Modeling/metrics.py`)
+### Métricas (`Baselines/metrics.py`)
 
 * **Objetivo:** calcular errores punto a punto entre `y_true` y `y_pred`.
 * **Disponibles:**
@@ -130,7 +130,7 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
   * **wMAPE** (porcentaje ponderado, más estable con reales pequeños).
   * **sMAPE** (porcentaje simétrico, menos sesgo en extremos).
 
-### Reporting (`Modeling/reporting.py`)
+### Reporting (`Baselines/reporting.py`)
 
 * **Objetivo:** agregar resultados por **celda/horizonte/split** y exportar.
 * **Funciones clave:**
@@ -142,13 +142,13 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
   * `print_summary(df)` → resumen por `horizon/split` (medias) + `n_total`.
   * `print_per_cell(df, cells=None, columns=None)` → detalle por celda (opcional filtro de celdas/columnas).
 
-> **Importante**: las funciones de guardado **no** se usan para persistencia, porque persistencia guarda **solo** en su subcarpeta `Modeling/persistence/output/` (ver abajo).
+> **Importante**: las funciones de guardado **no** se usan para persistencia, porque persistencia guarda **solo** en su subcarpeta `Baselines/persistence/output/` (ver abajo).
 
 ---
 
-## Baseline: Persistencia (`Modeling/persistence/`)
+## Baseline: Persistencia (`Baselines/persistence/`)
 
-### Implementación (`Modeling/persistence/persistence.py`)
+### Implementación (`Baselines/persistence/persistence.py`)
 
 * **Regla del modelo:** `ŷ(t+H) = y(t)` (sin entrenamiento, sin hiperparámetros).
 * **Funciones:**
@@ -158,7 +158,7 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
     `n, MAE, RMSE, MAPE, wMAPE, sMAPE, Y_MEAN` (donde `Y_MEAN` es la **media de `y_true` evaluado**).
   * `evaluate_persistence_splits(s_train, s_val, s_test, H)` → aplica a los tres splits para un `H`.
 
-### Orquestador (`Modeling/persistence/run_persistence.py`)
+### Orquestador (`Baselines/persistence/run_persistence.py`)
 
 * **Flujo:**
 
@@ -174,19 +174,19 @@ Utilidades comunes y modelos. Todo se realiza **en memoria** a partir de los CSV
 
      * imprime **resumen global** por `horizon/split`,
      * imprime **detalle por celda**.
-  5. **Guarda los CSV en** `Modeling/persistence/output/`
+  5. **Guarda los CSV en** `Baselines/persistence/output/`
 
      * `persistence_results.csv` → todas las celdas, horizontes y splits.
      * `persistence_cell_<cell_id>.csv` → un CSV por celda.
 * **Ejecución:**
 
   ```bash
-  python -m Modeling.persistence.run_persistence
+  python -m Baselines.persistence.run_persistence
   ```
 
   > Ejecutar **siempre** desde la **raíz** del repo.
 
-### Salidas (`Modeling/persistence/output/`)
+### Salidas (`Baselines/persistence/output/`)
 
 * **`persistence_results.csv`** (global):
 
@@ -208,13 +208,13 @@ Se incluye una visualización **por celda y horizonte (H)** que muestra **toda l
 
 * **Código**:
 
-  * `Modeling/persistence/viz.py` → funciones de pintado (línea **sólida** y con contorno para **Real**, **discontinua** y más fina para **Predicción**; control de `figsize` y `dpi`).
-  * `Modeling/persistence/run_plots.py` → orquestador de plots (configurado para pintar **toda la serie** con splits sombreados).
+  * `Baselines/persistence/viz.py` → funciones de pintado (línea **sólida** y con contorno para **Real**, **discontinua** y más fina para **Predicción**; control de `figsize` y `dpi`).
+  * `Baselines/persistence/run_plots.py` → orquestador de plots (configurado para pintar **toda la serie** con splits sombreados).
 
 * **Salida**:
 
   ```
-  Modeling/persistence/output/plots_all/<cell_id>/H{H}_ALL.png
+  Baselines/persistence/output/plots_all/<cell_id>/H{H}_ALL.png
   ```
 
   (Una imagen por celda y por H.)
@@ -222,7 +222,7 @@ Se incluye una visualización **por celda y horizonte (H)** que muestra **toda l
 * **Cómo ejecutar** (desde la raíz):
 
   ```bash
-  python -m Modeling.persistence.run_plots
+  python -m Baselines.persistence.run_plots
   ```
 
   *(El archivo está configurado para el modo **"all"**. Si cambias estilos/tamaño, ajusta `FIGSIZE_ALL` y `DPI_ALL` en `run_plots.py`.)*
@@ -274,13 +274,13 @@ Salidas:
 3. **Evaluar Persistencia** (H=1 y H=6):
 
 ```bash
-python -m Modeling.persistence.run_persistence
+python -m Baselines.persistence.run_persistence
 ```
 
 Salidas en:
 
 ```
-Modeling/persistence/output/
+Baselines/persistence/output/
   ├─ persistence_results.csv
   ├─ persistence_cell_4259.csv
   ├─ persistence_cell_4456.csv
@@ -291,7 +291,7 @@ Modeling/persistence/output/
 
 ## Roadmap
 
-* **Media móvil** (`Modeling/moving_average/`): elegir ventana K en **val**, comparar en **test** vs persistencia.
+* **Media móvil** (`Baselines/moving_average/`): elegir ventana K en **val**, comparar en **test** vs persistencia.
 * **Redes neuronales** (MLP/GRU) con **ventanas W=12** y **H∈{1,6}**, reutilizando `data_access`, `targets`, `metrics` y `reporting`.
 * Informe por **celda** con wMAPE/sMAPE + MAE/RMSE y análisis por **hora del día**.
 

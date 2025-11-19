@@ -22,8 +22,8 @@ from typing import Dict, Tuple
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from Modeling.config import H_LIST, PERSISTENCE_OUTPUT_DIR
-from Modeling.data_access import iter_cells_by_file, split_series
+from Baselines.config import H_LIST, PERSISTENCE_OUTPUT_DIR
+from Baselines.data_access import iter_cells_by_file, split_series
 
 
 def _aligned_pred_for_horizon(series: pd.Series, H: int) -> pd.Series:

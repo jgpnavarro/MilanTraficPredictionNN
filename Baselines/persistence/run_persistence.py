@@ -1,13 +1,13 @@
-# Modeling/persistence/run_persistence.py
+# Baselines/persistence/run_persistence.py
 
 from __future__ import annotations
 
 from typing import List, Dict
 
-from Modeling.config import H_LIST, PERSISTENCE_OUTPUT_DIR
-from Modeling.data_access import iter_cells_by_file, split_series
-from Modeling.persistence.persistence import evaluate_persistence_splits
-from Modeling.reporting import (
+from Baselines.config import H_LIST, PERSISTENCE_OUTPUT_DIR
+from Baselines.data_access import iter_cells_by_file, split_series
+from Baselines.persistence.persistence import evaluate_persistence_splits
+from Baselines.reporting import (
     rows_from_eval_dict,
     aggregate_results,
     print_summary,
@@ -35,7 +35,7 @@ def main() -> None:
     print_summary(df_results, include_y_mean=True)
     print_per_cell(df_results)  # opcional: detalle por celda
 
-    # 5) guardar SOLO en Modeling/persistence/output/
+    # 5) guardar SOLO en Baselines/persistence/output/
     save_results(
         df_results,
         filename="persistence_results.csv",

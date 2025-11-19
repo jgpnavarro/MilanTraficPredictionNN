@@ -26,7 +26,7 @@ Funciones principales:
 from __future__ import annotations
 from typing import Dict
 import pandas as pd
-from Modeling.metrics import mae, rmse, mape, wmape, smape
+from Baselines.metrics import mae, rmse, mape, wmape, smape
 
 
 def moving_average_forecast(
