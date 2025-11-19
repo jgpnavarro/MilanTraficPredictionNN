@@ -1,5 +1,3 @@
----
-'''
 # MilanTrafficPredictionNN
 
 Predicción de **tráfico de Internet móvil** en Milán (Telecom Italia) sobre una **malla espacial** con intervalos de **10 minutos**.
