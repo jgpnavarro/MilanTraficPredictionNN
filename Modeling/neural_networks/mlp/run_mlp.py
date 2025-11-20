@@ -28,9 +28,9 @@ from keras.callbacks import EarlyStopping
 from Modeling.config import (
     NN_HORIZON,
     NN_INPUT_WINDOW,
-    MLP_EPOCHS_MAX,
-    MLP_BATCH_SIZE,
-    MLP_EARLY_STOPPING_PATIENCE,
+    NN_EPOCHS_MAX,
+    NN_BATCH_SIZE,
+    NN_EARLY_STOPPING_PATIENCE,
     MLP_OUTPUT_DIR,
     MLP_MODELS_DIR,
 )
@@ -160,7 +160,7 @@ def run_mlp_per_cell(cell_id: int, series) -> List[Dict]:
     # 6) Definir EarlyStopping sobre la pérdida de validación
     early_stopping = EarlyStopping(
         monitor="val_loss",
-        patience=MLP_EARLY_STOPPING_PATIENCE,
+        patience=NN_EARLY_STOPPING_PATIENCE,
         restore_best_weights=True,
         verbose=0,
     )
@@ -170,8 +170,8 @@ def run_mlp_per_cell(cell_id: int, series) -> List[Dict]:
         X_train_np,
         y_train_np,
         validation_data=(X_val_np, y_val_np),
-        epochs=MLP_EPOCHS_MAX,
-        batch_size=MLP_BATCH_SIZE,
+        epochs=NN_EPOCHS_MAX,
+        batch_size=NN_BATCH_SIZE,
         callbacks=[early_stopping],
         verbose=0,  # cambiar a 1 si se quiere ver el progreso por época
     )

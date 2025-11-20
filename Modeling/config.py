@@ -22,9 +22,9 @@ NN_INPUT_WINDOW = 12
 SPLIT = (0.70, 0.15, 0.15)
 
 # Hiperparámetros de entrenamiento básicos para el MLP
-MLP_EPOCHS_MAX = 50          # número máximo de épocas de entrenamiento
-MLP_BATCH_SIZE = 128         # tamaño de lote (batch size)
-MLP_EARLY_STOPPING_PATIENCE = 5  # paciencia para early stopping (en épocas)
+NN_EPOCHS_MAX = 50          # número máximo de épocas de entrenamiento
+NN_BATCH_SIZE = 128         # tamaño de lote (batch size)
+NN_EARLY_STOPPING_PATIENCE = 10  # paciencia para early stopping (en épocas)
 
 # Frecuencia esperada de la serie temporal. "10T" equivale a 10 minutos.
 FREQ = "10T"
@@ -46,6 +46,10 @@ MLP_OUTPUT_DIR = NN_BASE_DIR / "mlp" / "output"
 MLP_MODELS_DIR = NN_BASE_DIR / "mlp" / "models"
 MLP_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 MLP_MODELS_DIR.mkdir(parents=True, exist_ok=True)
+GRU_OUTPUT_DIR = NN_BASE_DIR/"gru/output"
+GRU_MODELS_DIR = NN_BASE_DIR/"gru/models"
+GRU_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+GRU_MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 # Localización de los datos procesados. Se intenta tomar de Processing.config.
 # Si no está disponible, se recurre a la ruta relativa por defecto "Data/processed".

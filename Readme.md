@@ -641,8 +641,8 @@ Orquestador para entrenar y evaluar un MLP **por celda**:
 
 8. Entrena con:
 
-   * `epochs = MLP_EPOCHS_MAX`
-   * `batch_size = MLP_BATCH_SIZE`
+   * `epochs = NN_EPOCHS_MAX`
+   * `batch_size = NN_BATCH_SIZE`
    * `EarlyStopping` (monitorizando `val_loss` y restaurando los mejores pesos).
 
 9. Guarda el modelo entrenado en:
