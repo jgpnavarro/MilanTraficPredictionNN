@@ -836,7 +836,7 @@ Modeling/neural_networks/mlp/output/plots_all/
 
 ---
 
-## Notas y posibles extensiones
+## Notas y posibles extensiones actuales
 
 * Los módulos **generales** (`data_access`, `targets`, `metrics`, `reporting`, `scaling`) están diseñados para ser reutilizables tanto por baselines como por redes neuronales.
 * La normalización y el tamaño de ventana se pueden ajustar fácilmente vía `Modeling/config.py`.
@@ -846,4 +846,9 @@ Modeling/neural_networks/mlp/output/plots_all/
   * probar arquitecturas específicas de series (LSTM/GRU, CNN),
   * hacer búsqueda de hiperparámetros para el MLP,
   * comparar explícitamente MLP vs modelo lineal con las mismas features.
+
+## Próximos pasos
+
+* Crear una red neuronal tipo GRU, visualizar resultados y comparar con modelo de persistencia, media móvil y MLP.
+* Aplicar las predicciones para calcular el ahorro de energía teórico en las estaciones base de redes móviles (celdas).
 
