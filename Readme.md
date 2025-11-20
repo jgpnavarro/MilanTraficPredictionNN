@@ -8,9 +8,11 @@ El repositorio incluye:
 - **Unificación** de datos por celda (`by_cell`) y tabla global (`all_cells`).
 - Primera fase de **modelado clásico** (**baselines**: Persistencia y Media Móvil).
 - Primera fase de **Redes Neuronales** (MLP por celda, con normalización y features temporales).
+- Segunda red neuronal secuencial (GRU por celda, con features de calendario: día de la semana, hora, festivos, etc.).
 - Métricas y reporting por celda, horizonte y split (train/val/test).
 - Visualización de series reales vs predicción con sombreado de splits.
-'''
+- Script de orquestación para ejecutar varios modelos a la vez y comparar sus predicciones y métricas (por celda).
+
 ---
 
 ## Estructura del proyecto
@@ -32,7 +34,7 @@ MilanTrafficPredictionNN/
 │  ├─ config.py
 │  ├─ process_cells_internet.py
 │  ├─ timeseries_dataset.py
-|  └─ run_processing.py
+│  └─ run_processing.py
 ├─ Modeling/
 │  ├─ __init__.py
 │  ├─ config.py
@@ -41,6 +43,7 @@ MilanTrafficPredictionNN/
 │  ├─ metrics.py
 │  ├─ reporting.py
 │  ├─ scaling.py
+│  ├─ features_calendar.py
 │  ├─ baselines/
 │  │  ├─ __init__.py
 │  │  ├─ persistence/
@@ -58,16 +61,26 @@ MilanTrafficPredictionNN/
 │  │     └─ output/
 │  └─ neural_networks/
 │     ├─ __init__.py
-│     └─ mlp/
+│     ├─ mlp/
+│     │  ├─ __init__.py
+│     │  ├─ mlp.py
+│     │  ├─ run_mlp.py
+│     │  ├─ run_plots.py
+│     │  └─ output/
+│     └─ gru/
 │        ├─ __init__.py
-│        ├─ mlp.py
-│        ├─ run_mlp.py
+│        ├─ gru.py
+│        ├─ run_gru.py
 │        ├─ run_plots.py
 │        └─ output/
+├─ total_output/
+│  ├─ metrics_by_cell_H6_W12_test.csv
+│  └─ plots_cells/
+│     └─ cell_<id>_combined.png
+├─ run_orchestrator.py
 └─ Readme.md
+````
 
-
-```
 ---
 
 ## Datos (`Data/`)
@@ -113,7 +126,7 @@ Salidas del pipeline de preprocesado:
 > Todo el código de modelado (baselines y redes) trabaja **siempre** desde `Data/processed/`.
 > `raw/` se usa sólo en el preprocesado.
 
-```
+---
 
 ## Mapa (`Mapa Squares Milán/`)
 
@@ -121,8 +134,8 @@ Salidas del pipeline de preprocesado:
   Polígonos e **IDs de celda** (grid) de las zonas analizadas: Bocconi, Navigli, Duomo, etc.
   Es un **documento de referencia geográfica**, no es entrada del pipeline de datos.
 
-```
 ---
+
 ## Preprocesado (`Processing/`)
 
 ### `Processing/config.py`
@@ -138,7 +151,7 @@ Salidas del pipeline de preprocesado:
 * Zona horaria:
 
   * `TIMEZONE = "Europe/Rome"`
-    usada para convertir los timestamps de epoch ms a `datetime` local.
+    Usada para convertir los timestamps de epoch ms a `datetime` local.
 
 ### `Processing/process_cells_internet.py`
 
@@ -150,10 +163,6 @@ Lee los ficheros crudos de `raw/`, convierte tiempos y agrega tráfico de intern
 * Agrega `internet_total` por `(cell_id, datetime)` en frecuencia de **10 minutos**.
 
 **Salida**: un fichero `*_internet_total.csv` por día en `Data/processed/`.
-
-### `Processing/timeseries_dataset.py`
-
-Ejecuta lo de arriba
 
 ### `Processing/timeseries_dataset.py`
 
@@ -208,7 +217,12 @@ Parámetros y rutas de modelado:
   BY_CELL_DIR   = Data/processed/by_cell/
   ```
 
-* Parámetros específicos de salidas para baselines y redes (directorios de resultados y modelos).
+* Parámetros específicos de salidas para baselines y redes (directorios de resultados y modelos):
+
+  * `PERSISTENCE_OUTPUT_DIR`, `MOVING_AVG_OUTPUT_DIR`
+  * `MLP_OUTPUT_DIR`, `MLP_MODELS_DIR`
+  * `GRU_OUTPUT_DIR`, `GRU_MODELS_DIR`
+  * Parámetros de redes: `NN_INPUT_WINDOW`, `NN_HORIZON`, `NN_EPOCHS_MAX`, etc.
 
 ### `Modeling/data_access.py`
 
@@ -232,7 +246,7 @@ Funciones clave:
   s_train, s_val, s_test = split_series(series)
   ```
 
-donde `SPLIT=(0.70,0.15,0.15)` se respeta por índice temporal (no mezcla el orden).
+  donde `SPLIT=(0.70,0.15,0.15)` se respeta por índice temporal (no mezcla el orden).
 
 ### `Modeling/targets.py`
 
@@ -241,7 +255,6 @@ Construcción de objetivos (pares `(X, y)`) para un horizonte `H`.
 Funciones principales:
 
 * `make_xy_for_horizon(series, H)`
-
   Construye los datos para un horizonte fijo:
 
   * `X(t) = y(t)` (en la versión simple, X es un array/serie con el valor actual).
@@ -249,7 +262,6 @@ Funciones principales:
   * Se recortan las últimas `H` muestras para alinear tamaños.
 
 * `make_xy_for_horizon_splits(s_train, s_val, s_test, H)`
-
   Aplica la misma lógica a cada split y devuelve:
 
   ```python
@@ -315,11 +327,9 @@ Funciones:
   ```
 
 * `aggregate_results(all_rows)`
-
   Construye un `DataFrame` a partir de todas las filas acumuladas, ordenado por `horizon, cell_id, split`.
 
 * `print_summary(df)`
-
   Imprime un resumen por `horizon/split` con:
 
   * media de MAE, RMSE, MAPE, wMAPE, sMAPE,
@@ -327,16 +337,13 @@ Funciones:
   * media de `Y_MEAN`.
 
 * `print_per_cell(df, cells=None, columns=None)`
-
   Imprime un resumen por celda, separando horizontes y splits.
   Permite filtrar por `cells` (lista de `cell_id`) y columnas.
 
 * `save_results(df, filename, output_dir)`
-
   Guarda un CSV global en `output_dir/filename`.
 
 * `save_per_cell_csv(df, filename_prefix, output_dir)`
-
   Guarda un CSV por celda:
 
   ```text
@@ -375,6 +382,29 @@ Funciones de **normalización por máximo** por celda:
   ```
 
 Esta normalización se utiliza especialmente en las redes neuronales.
+
+### `Modeling/features_calendar.py`
+
+Funciones para añadir **features de calendario** a un `DataFrame` que contenga:
+
+* `datetime`
+* `internet_total`
+
+Funciones:
+
+* `add_public_holiday_feature(df)`
+  Añade `is_public_holiday` (0/1) usando la librería `holidays` y los festivos oficiales de Italia.
+
+* `add_special_break_feature(df, periods_path, column_name="is_special_break")`
+  Marca rangos de fechas especiales definidos en un CSV (por ejemplo, periodo de Navidad).
+
+* `add_calendar_features(df, special_periods_path=None)`
+  Añade:
+
+  * `day_of_week` (0=lunes … 6=domingo),
+  * `hour_of_day` (0–23),
+  * `is_public_holiday` (0/1),
+  * opcionalmente `is_special_break` (0/1) si se pasa un CSV con periodos especiales.
 
 ---
 
@@ -490,7 +520,7 @@ Baseline de media móvil (rolling mean):
 
   donde `L` es el tamaño de la ventana (número de pasos de 10 min).
 
-* Se implementa de forma eficiente usando ventanas deslizantes sobre la serie.
+* Se implementa usando ventanas deslizantes sobre la serie.
 
 * Funciones principales:
 
@@ -564,7 +594,10 @@ python -m Modeling.baselines.moving_average.run_plots
 
 ## Redes Neuronales (`Modeling/neural_networks/`)
 
-Primera red neuronal implementada: un **MLP por celda**, para horizonte fijo `H=6` (1 hora) usando ventanas de `NN_INPUT_WINDOW=12` (2 horas) y features temporales sencillas.
+Se implementan dos modelos neuronales por celda:
+
+* Un **MLP** (red densa) con lags y features temporales.
+* Una **GRU** (red recurrente) con features de calendario.
 
 ### Arquitectura MLP (`Modeling/neural_networks/mlp/mlp.py`)
 
@@ -600,7 +633,7 @@ Compilación:
 * `optimizer=Adam(learning_rate)`.
 * `metrics=["mae"]`.
 
-### Entrenamiento y evaluación (`Modeling/neural_networks/mlp/run_mlp.py`)
+### Entrenamiento y evaluación MLP (`Modeling/neural_networks/mlp/run_mlp.py`)
 
 Orquestador para entrenar y evaluar un MLP **por celda**:
 
@@ -628,8 +661,6 @@ Orquestador para entrenar y evaluar un MLP **por celda**:
    * `dow_sin`, `dow_cos` → codificación cíclica del día de la semana.
    * `is_weekend` → 1 si sábado/domingo, 0 en caso contrario.
 
-   Estas columnas se añaden en la función `add_time_features(X)`.
-
 6. Convierte `X_*` y `y_*` a `numpy.float32`.
 
 7. Construye el modelo:
@@ -650,8 +681,6 @@ Orquestador para entrenar y evaluar un MLP **por celda**:
    ```text
    Modeling/neural_networks/mlp/output/models/mlp_cell_<id>.keras
    ```
-
-   (ruta concreta en `MLP_MODELS_DIR` dentro de `config.py`).
 
 10. Predice en `train/val/test` (en escala normalizada) y deshace la normalización multiplicando por `max_train` (factor de escala por celda).
 
@@ -677,7 +706,7 @@ Orquestador para entrenar y evaluar un MLP **por celda**:
 python -m Modeling.neural_networks.mlp.run_mlp
 ```
 
-> Se entrena un modelo MLP **independiente** por celda (no hay modelo común a todas).
+> Se entrena un modelo MLP **independiente** por celda.
 
 ### Visualización MLP (`Modeling/neural_networks/mlp/run_plots.py`)
 
@@ -711,6 +740,197 @@ python -m Modeling.neural_networks.mlp.run_plots
 
 ---
 
+### Arquitectura GRU (`Modeling/neural_networks/gru/gru.py`)
+
+Define la función `build_gru`:
+
+```python
+def build_gru(
+    input_timesteps: int,
+    n_features: int = 1,
+    gru_units: int = 32,
+    learning_rate: float = 1e-3,
+) -> Sequential:
+    ...
+```
+
+* `input_timesteps`
+  Longitud de la ventana temporal de entrada (por ejemplo, 12 pasos de 10 minutos).
+
+* `n_features`
+  Número de características por instante de tiempo. En este proyecto se usan:
+
+  * `traffic_scaled` (tráfico normalizado),
+  * `hour_of_day` (0–23),
+  * `day_of_week` (0–6),
+  * `is_public_holiday` (0/1, festivo oficial en Italia).
+
+* `gru_units`
+  Número de neuronas de la capa GRU (por defecto 32). Más unidades = más capacidad, pero también más riesgo de sobreajuste.
+
+Arquitectura:
+
+* Una sola capa `GRU` que resume toda la ventana temporal.
+* Una capa de salida densa `Dense(1, activation="linear")` para predecir el valor futuro (regresión).
+
+Compilación:
+
+* `loss="mse"` (error cuadrático medio).
+* `optimizer=Adam(learning_rate)`.
+* `metrics=["mae"]`.
+
+### Entrenamiento y evaluación GRU (`Modeling/neural_networks/gru/run_gru.py`)
+
+Orquestador para entrenar y evaluar una GRU **por celda**:
+
+1. Itera celdas con `iter_cells_by_file()`.
+
+2. Divide la serie de cada celda en `s_train, s_val, s_test` (`split_series`).
+
+3. Normaliza cada split dividiendo por el máximo de `s_train` (`scale_splits_by_train_max`).
+
+4. Construye un `DataFrame` con:
+
+   * `datetime`,
+   * `internet_total`,
+   * features de calendario (`day_of_week`, `hour_of_day`, `is_public_holiday` y, opcionalmente, `is_special_break` como etiqueta, aunque no se usa como feature de entrada en la GRU).
+
+5. Genera ventanas deslizantes para H=6 y ventana `NN_INPUT_WINDOW=12` (2 horas):
+
+   * Entrada: secuencia de tamaño `(12, n_features)` por ejemplo
+     `[traffic_scaled, hour_of_day, day_of_week, is_public_holiday]`.
+   * Salida: `traffic_scaled` en `t+H`.
+
+6. Convierte las ventanas a `numpy.float32` y construye el modelo:
+
+   ```python
+   model = build_gru(
+       input_timesteps=NN_INPUT_WINDOW,
+       n_features=n_features,
+   )
+   ```
+
+7. Entrena con:
+
+   * `epochs = NN_EPOCHS_MAX`,
+   * `batch_size = NN_BATCH_SIZE`,
+   * `EarlyStopping` monitorizando `val_loss` y restaurando los mejores pesos.
+
+8. Guarda el modelo entrenado en:
+
+   ```text
+   Modeling/neural_networks/gru/output/models/gru_cell_<id>.keras
+   ```
+
+9. Predice en `train/val/test` (en escala normalizada) y deshace la normalización multiplicando por el factor `max_train` de cada celda.
+
+10. Calcula métricas por split (`MAE`, `RMSE`, `MAPE`, `wMAPE`, `sMAPE`, `Y_MEAN`, `n`) y añade columnas:
+
+    * `model = "gru"`,
+    * `window = NN_INPUT_WINDOW`,
+    * `n_features` (número de features por timestep).
+
+11. Agrega resultados y los guarda en:
+
+    ```text
+    Modeling/neural_networks/gru/output/
+      ├─ gru_results.csv
+      ├─ gru_cell_<id>.csv
+      └─ models/
+           ├─ gru_cell_4259.keras
+           └─ ...
+    ```
+
+**Ejecución**:
+
+```bash
+python -m Modeling.neural_networks.gru.run_gru
+```
+
+### Visualización GRU (`Modeling/neural_networks/gru/run_plots.py`)
+
+Visualiza el comportamiento de la GRU por celda, de forma similar al MLP:
+
+1. Para cada celda, reproduce el pipeline:
+
+   * split en `train/val/test`,
+   * normalización por máximo,
+   * añadido de features de calendario,
+   * construcción de ventanas `(NN_INPUT_WINDOW, n_features)`.
+
+2. Carga el modelo `gru_cell_<id>.keras`.
+
+3. Predice en `train/val/test`, deshace la normalización y reconstruye una serie `y_pred` alineada con la serie real `y_real`.
+
+4. Calcula rangos temporales de `train/val/test` para sombrear en la figura.
+
+5. Genera una **figura por celda** con:
+
+   * serie real (línea sólida),
+   * predicción GRU (línea discontinua),
+   * bandas sombreadas para train / val / test.
+
+6. Guarda la figura en:
+
+   ```text
+   Modeling/neural_networks/gru/output/plots_all/cell_<id>_gru.png
+   ```
+
+**Ejecución**:
+
+```bash
+python -m Modeling.neural_networks.gru.run_plots
+```
+
+---
+
+## Orquestador de modelos (`run_orchestrator.py` + `total_output/`)
+
+El script `run_orchestrator.py` (en la raíz del proyecto) permite:
+
+* Ejecutar uno o varios modelos:
+
+  * `persistence`
+  * `moving_average`
+  * `mlp`
+  * `gru`
+  * `all` (todos)
+
+* Generar una figura por celda con:
+
+  * serie real,
+  * predicción de cada modelo seleccionado,
+  * fondo sombreado train / val / test.
+
+* Crear una tabla con MAPE, wMAPE y sMAPE en test por celda y modelo
+  (para H=6 y, en el caso de media móvil, ventana W=12).
+
+Ejemplos de uso:
+
+```bash
+# Ejecutar todos los modelos y generar salidas combinadas
+python run_orchestrator.py --models all
+
+# Solo MLP y GRU
+python run_orchestrator.py --models mlp,gru
+
+# Solo baselines
+python run_orchestrator.py --models persistence,moving_average
+```
+
+Salidas en la raíz:
+
+```text
+total_output/
+  ├─ metrics_by_cell_H6_W12_test.csv   # MAPE, wMAPE, sMAPE por celda y modelo (split test)
+  └─ plots_cells/
+       ├─ cell_4259_combined.png       # Real + modelos seleccionados
+       ├─ cell_4456_combined.png
+       └─ ...
+```
+
+---
+
 ## Requisitos
 
 * Python **3.10+**
@@ -724,7 +944,7 @@ python -m Modeling.neural_networks.mlp.run_plots
 * TensorFlow + Keras (para las Redes Neuronales):
 
   ```bash
-  pip install tensorflow keras
+  pip install tensorflow keras holidays
   ```
 
 > Recomendado usar un entorno virtual:
@@ -834,21 +1054,68 @@ Modeling/neural_networks/mlp/output/plots_all/
   └─ ...
 ```
 
+### 6. Entrenar y evaluar GRU por celda (H=6, ventana=12)
+
+```bash
+python -m Modeling.neural_networks.gru.run_gru
+```
+
+Salidas en:
+
+```text
+Modeling/neural_networks/gru/output/
+  ├─ gru_results.csv
+  ├─ gru_cell_4259.csv
+  ├─ ...
+  └─ models/
+       ├─ gru_cell_4259.keras
+       └─ ...
+```
+
+Plots:
+
+```bash
+python -m Modeling.neural_networks.gru.run_plots
+```
+
+Figuras en:
+
+```text
+Modeling/neural_networks/gru/output/plots_all/
+  ├─ cell_4259_gru.png
+  ├─ cell_4456_gru.png
+  └─ ...
+```
+
+### 7. Orquestador: ejecutar varios modelos y generar gráficas combinadas
+
+```bash
+# Todos los modelos
+python run_orchestrator.py --models all
+
+# Solo MLP y GRU
+python run_orchestrator.py --models mlp,gru
+
+# Solo baselines
+python run_orchestrator.py --models persistence,moving_average
+```
+
 ---
 
 ## Notas y posibles extensiones actuales
 
-* Los módulos **generales** (`data_access`, `targets`, `metrics`, `reporting`, `scaling`) están diseñados para ser reutilizables tanto por baselines como por redes neuronales.
-* La normalización y el tamaño de ventana se pueden ajustar fácilmente vía `Modeling/config.py`.
+* Los módulos **generales** (`data_access`, `targets`, `metrics`, `reporting`, `scaling`, `features_calendar`) están diseñados para ser reutilizables tanto por baselines como por redes neuronales.
+* La normalización, el tamaño de ventana y el horizonte se ajustan fácilmente vía `Modeling/config.py`.
 * Extensiones posibles:
 
-  * añadir más features temporales (festivos, vacaciones, etc.),
-  * probar arquitecturas específicas de series (LSTM/GRU, CNN),
-  * hacer búsqueda de hiperparámetros para el MLP,
-  * comparar explícitamente MLP vs modelo lineal con las mismas features.
+  * añadir más features temporales (otros festivos, eventos, etc.),
+  * probar arquitecturas específicas de series (más capas GRU/LSTM, CNN),
+  * hacer búsqueda de hiperparámetros para MLP/GRU,
+  * comparar explícitamente el comportamiento de los modelos por subperiodos (antes/durante vacaciones),
+  * explotar la tabla de métricas combinada para seleccionar el modelo más robusto por celda.
 
 ## Próximos pasos
 
-* Crear una red neuronal tipo GRU, visualizar resultados y comparar con modelo de persistencia, media móvil y MLP.
-* Aplicar las predicciones para calcular el ahorro de energía teórico en las estaciones base de redes móviles (celdas).
-
+* Analizar en detalle las diferencias entre MLP y GRU, especialmente en el periodo de test (Navidad) y en celdas sensibles como Bocconi y Navigli.
+* Explorar ajustes de arquitectura o features para mejorar la robustez de la GRU en cambios de régimen (por ejemplo, otros tipos de codificación temporal o ventanas distintas).
+* Aplicar las predicciones para estimar el ahorro de energía teórico en las estaciones base de redes móviles (celdas), usando los distintos modelos.
