@@ -93,7 +93,6 @@ def mape(y_true: ArrayLike, y_pred: ArrayLike, eps: float = 1e-6) -> float:
     denom = np.maximum(np.abs(yt), eps)
     return float(np.mean(np.abs((yt - yp) / denom)) * 100.0)
 
-# ... (deja lo que ya tienes: mae, rmse, mape, helpers) ...
 
 def smape(y_true: ArrayLike, y_pred: ArrayLike, eps: float = 1e-6) -> float:
     """

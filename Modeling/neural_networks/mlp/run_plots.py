@@ -211,15 +211,15 @@ def plot_mlp_for_cell(cell_id: int, series: pd.Series) -> None:
     )
 
     # Sombreado de los splits (train / val / test)
-    shades = {
-        "train": {"alpha": 0.07, "color": "C0"},
-        "val":   {"alpha": 0.10, "color": "C2"},
-        "test":  {"alpha": 0.10, "color": "C3"},
+    colors = {
+        "train": "green",
+        "val": "orange",
+        "test": "red",
     }
-    for split_name, (t0, t1) in split_ranges.items():
-        style = shades.get(split_name, {"alpha": 0.08})
-        # axvspan pinta una banda vertical entre t0 y t1
-        ax.axvspan(t0, t1, **style, zorder=0)
+
+    for name, (t0, t1) in split_ranges.items():
+        color = colors.get(name, "gray")
+        ax.axvspan(t0, t1, alpha=0.05, color=color, label=f"{name} (fondo)")
 
     ax.set_title(f"Celda {cell_id} - MLP (H={NN_HORIZON}, ventana={NN_INPUT_WINDOW})")
     ax.set_xlabel("Tiempo")
