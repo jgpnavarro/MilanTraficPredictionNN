@@ -26,6 +26,13 @@ NN_EPOCHS_MAX = 50          # número máximo de épocas de entrenamiento
 NN_BATCH_SIZE = 128         # tamaño de lote (batch size)
 NN_EARLY_STOPPING_PATIENCE = 10  # paciencia para early stopping (en épocas)
 
+# Parámetros de la política energética y el modelo de potencia
+PERCENTILE_LOW = 20    # Percentil 20
+PERCENTILE_HIGH = 80   # Percentil 80
+K_MIN_LOW = 3          # K = 3 → mínimo 30 minutos seguidos de nivel bajo
+P_ACTIVE = 1.0         # Consumo relativo en modo ACTIVO
+P_SAVING = 0.6         # Consumo relativo en modo AHORRO (bajo consumo)
+
 # Frecuencia esperada de la serie temporal. "10T" equivale a 10 minutos.
 FREQ = "10T"
 
@@ -50,6 +57,11 @@ GRU_OUTPUT_DIR = NN_BASE_DIR/"gru/output"
 GRU_MODELS_DIR = NN_BASE_DIR/"gru/models"
 GRU_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 GRU_MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Directorio de salida para los resultados de energía
+ENERGY_OUTPUT_DIR = BASE_DIR / "Modeling"/"energy"/"output"
+ENERGY_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # Localización de los datos procesados. Se intenta tomar de Processing.config.
 # Si no está disponible, se recurre a la ruta relativa por defecto "Data/processed".
