@@ -1296,4 +1296,3 @@ Extensiones posibles:
 * Interpretar los resultados de energía por celda: cuánto se podría ahorrar y con qué riesgo, especialmente en zonas como Bocconi y Navigli frente a zonas más tranquilas.
 * Discutir las limitaciones del modelo de energía (muy simplificado) y posibles mejoras para acercarse más a la realidad de una red móvil.
 
-```
