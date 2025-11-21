@@ -12,6 +12,8 @@ El repositorio incluye:
 - Métricas y reporting por celda, horizonte y split (train/val/test).
 - Visualización de series reales vs predicción con sombreado de splits.
 - Script de orquestación para ejecutar varios modelos a la vez y comparar sus predicciones y métricas (por celda).
+- Módulo de **energía** para simular una política ACTIVO/AHORRO por celda usando las predicciones de los modelos.
+- Pipeline de energía para calcular **ahorro energético teórico** y **riesgo** y generar gráficos de consumo acumulado.
 
 ---
 
@@ -59,25 +61,30 @@ MilanTrafficPredictionNN/
 │  │     ├─ run_moving_average.py
 │  │     ├─ run_plots.py
 │  │     └─ output/
-│  └─ neural_networks/
+│  ├─ neural_networks/
+│  │  ├─ __init__.py
+│  │  ├─ mlp/
+│  │  │  ├─ __init__.py
+│  │  │  ├─ mlp.py
+│  │  │  ├─ run_mlp.py
+│  │  │  ├─ run_plots.py
+│  │  │  └─ output/
+│  │  └─ gru/
+│  │     ├─ __init__.py
+│  │     ├─ gru.py
+│  │     ├─ run_gru.py
+│  │     ├─ run_plots.py
+│  │     └─ output/
+│  └─ energy/
 │     ├─ __init__.py
-│     ├─ mlp/
-│     │  ├─ __init__.py
-│     │  ├─ mlp.py
-│     │  ├─ run_mlp.py
-│     │  ├─ run_plots.py
-│     │  └─ output/
-│     └─ gru/
-│        ├─ __init__.py
-│        ├─ gru.py
-│        ├─ run_gru.py
-│        ├─ run_plots.py
-│        └─ output/
+│     ├─ run_energy.py
+│     └─ run_plots.py
 ├─ total_output/
 │  ├─ metrics_by_cell_H6_W12_test.csv
 │  └─ plots_cells/
 │     └─ cell_<id>_combined.png
 ├─ run_orchestrator.py
+├─ run_energy_pipeline.py
 └─ Readme.md
 ````
 
@@ -195,26 +202,26 @@ Parámetros y rutas de modelado:
 * Horizontes de predicción (en pasos de 10 minutos):
 
   ```python
-  H_LIST = [1, 6]       # 10 minutos y 60 minutos
+  H_LIST = [1, 6]  # 10 minutos y 60 minutos
   ```
 
 * Split temporal (proporción):
 
   ```python
-  SPLIT = (0.70, 0.15, 0.15)   # train / val / test
+  SPLIT = (0.70, 0.15, 0.15)  # train / val / test
   ```
 
 * Frecuencia informativa:
 
   ```python
-  FREQ = "10T"   # 10 minutes
+  FREQ = "10T"  # 10 minutes
   ```
 
-* Rutas a datos procesados:
+* Rutas a datos procesados (conceptualmente):
 
   ```python
-  PROCESSED_DIR = Data/processed/
-  BY_CELL_DIR   = Data/processed/by_cell/
+  PROCESSED_DIR = "Data/processed/"
+  BY_CELL_DIR   = "Data/processed/by_cell/"
   ```
 
 * Parámetros específicos de salidas para baselines y redes (directorios de resultados y modelos):
@@ -222,7 +229,7 @@ Parámetros y rutas de modelado:
   * `PERSISTENCE_OUTPUT_DIR`, `MOVING_AVG_OUTPUT_DIR`
   * `MLP_OUTPUT_DIR`, `MLP_MODELS_DIR`
   * `GRU_OUTPUT_DIR`, `GRU_MODELS_DIR`
-  * Parámetros de redes: `NN_INPUT_WINDOW`, `NN_HORIZON`, `NN_EPOCHS_MAX`, etc.
+  * Parámetros de redes: `NN_INPUT_WINDOW`, `NN_HORIZON`, `NN_EPOCHS_MAX`, `NN_BATCH_SIZE`, `NN_EARLY_STOPPING_PATIENCE`, etc.
 
 ### `Modeling/data_access.py`
 
@@ -246,7 +253,7 @@ Funciones clave:
   s_train, s_val, s_test = split_series(series)
   ```
 
-  donde `SPLIT=(0.70,0.15,0.15)` se respeta por índice temporal (no mezcla el orden).
+  donde `SPLIT = (0.70, 0.15, 0.15)` se respeta por índice temporal (no mezcla el orden).
 
 ### `Modeling/targets.py`
 
@@ -257,7 +264,7 @@ Funciones principales:
 * `make_xy_for_horizon(series, H)`
   Construye los datos para un horizonte fijo:
 
-  * `X(t) = y(t)` (en la versión simple, X es un array/serie con el valor actual).
+  * `X(t) = y(t)` (en la versión simple, X es el valor actual).
   * `y(t) = y(t+H)` → usando `series.shift(-H)`.
   * Se recortan las últimas `H` muestras para alinear tamaños.
 
@@ -273,7 +280,6 @@ Funciones principales:
   ```
 
 * `make_windowed_xy_for_horizon_splits(s_train, s_val, s_test, H, input_window)`
-
   Versión para redes neuronales: crea **ventanas deslizantes** de tamaño `input_window`:
 
   * Para cada instante futuro `t+H`, la entrada es:
@@ -308,7 +314,6 @@ Agrega resultados y facilita la impresión y guardado.
 Funciones:
 
 * `rows_from_eval_dict(cell_id, horizon, eval_dict)`
-
   Recibe un diccionario de métricas por split:
 
   ```python
@@ -319,7 +324,7 @@ Funciones:
   }
   ```
 
-  y devuelve una lista de filas (dicts) con columnas:
+  y devuelve una lista de filas (diccionarios) con columnas:
 
   ```text
   cell_id, horizon, split, n,
@@ -338,7 +343,7 @@ Funciones:
 
 * `print_per_cell(df, cells=None, columns=None)`
   Imprime un resumen por celda, separando horizontes y splits.
-  Permite filtrar por `cells` (lista de `cell_id`) y columnas.
+  Permite filtrar por `cells` (lista de `cell_id`) y por columnas.
 
 * `save_results(df, filename, output_dir)`
   Guarda un CSV global en `output_dir/filename`.
@@ -356,7 +361,7 @@ Funciones de **normalización por máximo** por celda:
 
 * `compute_train_max(s_train)`
   Calcula el máximo de la serie de entrenamiento (`s_train`).
-  Si el máximo no es válido o es menor o igual que 0, devuelve 1.0.
+  Si el máximo no es válido o es ≤ 0, devuelve 1.0 (para evitar divisiones raras).
 
 * `scale_series_by_max(series, max_value)`
   Devuelve `series / max_value` como `pd.Series` de floats.
@@ -396,7 +401,7 @@ Funciones:
   Añade `is_public_holiday` (0/1) usando la librería `holidays` y los festivos oficiales de Italia.
 
 * `add_special_break_feature(df, periods_path, column_name="is_special_break")`
-  Marca rangos de fechas especiales definidos en un CSV (por ejemplo, periodo de Navidad).
+  Marca rangos de fechas especiales definidos en un CSV (por ejemplo, periodo de Navidad) añadiendo una columna binaria.
 
 * `add_calendar_features(df, special_periods_path=None)`
   Añade:
@@ -404,7 +409,7 @@ Funciones:
   * `day_of_week` (0=lunes … 6=domingo),
   * `hour_of_day` (0–23),
   * `is_public_holiday` (0/1),
-  * opcionalmente `is_special_break` (0/1) si se pasa un CSV con periodos especiales.
+  * opcionalmente `is_special_break` (0/1) si se pasa un CSV con periodos especiales (por ejemplo `Data/calendar/special_periods.csv`).
 
 ---
 
@@ -437,7 +442,7 @@ Modelo de persistencia:
     * `Y_MEAN` (media de `y_true` en ese split).
 
   * `evaluate_persistence_splits(s_train, s_val, s_test, H)`
-    Para un horizonte `H`, construye `(X,y)` por split usando `targets`, aplica la regla de persistencia y devuelve un diccionario de métricas por split.
+    Para un horizonte `H`, construye `(X, y)` por split usando `targets`, aplica la regla de persistencia y devuelve un diccionario de métricas por split.
 
 #### `run_persistence.py`
 
@@ -616,7 +621,7 @@ def build_mlp(
   Número total de características de entrada (lags + features temporales).
 
 * `hidden_units`
-  Núm. de neuronas por capa oculta (por defecto dos capas: 64 y 32 neuronas).
+  Número de neuronas por capa oculta (por defecto dos capas: 64 y 32 neuronas).
 
 * `dropout_rate`
   Proporción de neuronas que se apagan aleatoriamente en entrenamiento para reducir sobreajuste (por defecto 0.2).
@@ -684,7 +689,7 @@ Orquestador para entrenar y evaluar un MLP **por celda**:
 
 10. Predice en `train/val/test` (en escala normalizada) y deshace la normalización multiplicando por `max_train` (factor de escala por celda).
 
-11. Calcula métricas por split (`MAE`, `RMSE`, `MAPE`, `wMAPE`, `sMAPE`, `Y_MEAN`, `n`) con `metrics.py`.
+11. Calcula métricas por split (`MAE`, `RMSE`, `MAPE`, `wMAPE`, `sMAPE`, `Y_MEAN`, `n`).
 
 12. Convierte los resultados a filas con `rows_from_eval_dict`, añadiendo columnas extra:
 
@@ -758,7 +763,7 @@ def build_gru(
   Longitud de la ventana temporal de entrada (por ejemplo, 12 pasos de 10 minutos).
 
 * `n_features`
-  Número de características por instante de tiempo. En este proyecto se usan:
+  Número de características por instante de tiempo. En este proyecto se usan, por ejemplo:
 
   * `traffic_scaled` (tráfico normalizado),
   * `hour_of_day` (0–23),
@@ -793,11 +798,11 @@ Orquestador para entrenar y evaluar una GRU **por celda**:
 
    * `datetime`,
    * `internet_total`,
-   * features de calendario (`day_of_week`, `hour_of_day`, `is_public_holiday` y, opcionalmente, `is_special_break` como etiqueta, aunque no se usa como feature de entrada en la GRU).
+   * features de calendario (`day_of_week`, `hour_of_day`, `is_public_holiday` y, opcionalmente, `is_special_break` leída desde un CSV).
 
 5. Genera ventanas deslizantes para H=6 y ventana `NN_INPUT_WINDOW=12` (2 horas):
 
-   * Entrada: secuencia de tamaño `(12, n_features)` por ejemplo
+   * Entrada: secuencia de tamaño `(12, n_features)` con features como
      `[traffic_scaled, hour_of_day, day_of_week, is_public_holiday]`.
    * Salida: `traffic_scaled` en `t+H`.
 
@@ -931,6 +936,154 @@ total_output/
 
 ---
 
+## Módulo de energía (`Modeling/energy/`)
+
+Este módulo usa las **predicciones de los modelos** para simular una política sencilla de ahorro de energía por celda.
+
+### `Modeling/energy/run_energy.py`
+
+Este script calcula, para cada celda y cada modelo (`persistence`, `moving_average`, `mlp`, `gru`):
+
+1. **Niveles de carga L/M/H**
+
+   * Usa los datos reales de train+val para calcular dos percentiles de tráfico por celda:
+
+     * `P20` → umbral de baja demanda,
+     * `P80` → umbral de alta demanda.
+   * En test, convierte el tráfico real y el tráfico **predicho a 1 hora vista** en niveles:
+
+     * `L` (Low) si tráfico < `P20`,
+     * `M` (Medium) si `P20 ≤ tráfico ≤ P80`,
+     * `H` (High) si tráfico > `P80`.
+
+2. **Política ACTIVO / AHORRO**
+
+   * En cada instante del test, mira el nivel **predicho** (`L`, `M`, `H`).
+   * Regla:
+
+     * si la predicción es `M` o `H` → estado = `ACTIVE`,
+     * si la predicción es `L` durante al menos `K` intervalos seguidos (por ejemplo 3 → 30 minutos) → estado = `SAVING` (modo ahorro),
+     * si vuelve a `M` o `H`, la celda pasa otra vez a `ACTIVE`.
+
+   El resultado es una serie `state_pred(t)` con valores `ACTIVE` o `SAVING` para cada intervalo de test.
+
+3. **Modelo simple de consumo energético**
+
+   * Se considera un consumo relativo por intervalo:
+
+     * `ACTIVE` → 1.0 (100 %),
+     * `SAVING` → 0.6 (60 %).
+   * Se comparan dos escenarios:
+
+     * **Base**: celda siempre `ACTIVE` → consumo total = `n_test * 1.0`.
+     * **Con política**: se usa `state_pred(t)` y se suma 1.0 o 0.6 según corresponda.
+
+   De ahí se obtiene el **ahorro energético relativo**:
+
+   ```text
+   Ahorro (%) = (E_base - E_policy) / E_base * 100
+   ```
+
+4. **Riesgo de QoS**
+
+   * Se cuentan los intervalos en los que la celda está en `SAVING` (`N_ahorro`).
+   * De esos, se miran los casos donde el nivel real no es `L` (es decir, es `M` o `H`) → `N_conflictos`.
+   * Se define un **riesgo**:
+
+     ```text
+     Riesgo (%) = N_conflictos / N_ahorro * 100
+     ```
+
+     (si `N_ahorro` = 0, el riesgo no se define y se deja como NaN).
+
+El script recorre todas las celdas y todos los modelos elegidos y guarda el resultado en:
+
+```text
+Modeling/energy/output/energy_results_all_models.csv
+```
+
+Cada fila contiene, entre otras, las columnas:
+
+* `cell_id`, `model`, `H`, `window`,
+* `P20`, `P80`, `K_min_low`, `P_active`, `P_saving`,
+* `n_test`, `E_base`, `E_policy`,
+* `saving_percent`, `time_saving_percent`,
+* `N_ahorro`, `N_conflictos`, `risk_percent`.
+
+Ejemplo de ejecución (todos los modelos):
+
+```bash
+python -m Modeling.energy.run_energy --models all
+```
+
+También se puede limitar la lista de modelos, por ejemplo:
+
+```bash
+python -m Modeling.energy.run_energy --models mlp,gru
+```
+
+### `Modeling/energy/run_plots.py`
+
+Este script visualiza el **consumo acumulado** en el tramo de test para cada celda y para varios modelos a la vez.
+
+Para cada celda:
+
+1. Reproduce la lógica de `run_energy.py` para obtener, por modelo:
+
+   * tráfico real y predicho en test,
+   * niveles L/M/H,
+   * estados `ACTIVE` / `SAVING`,
+   * consumo por intervalo (1.0 o 0.6).
+
+2. Calcula:
+
+   * **Consumo acumulado base**: suma de 1.0 en cada intervalo (recta ascendente).
+   * **Consumo acumulado con política** para cada modelo:
+
+     * se suma 1.0 si está en `ACTIVE`,
+     * se suma 0.6 si está en `SAVING`.
+
+3. Genera una figura por celda con:
+
+   * una línea base (`Base (siempre ACTIVO)`),
+   * una línea de consumo acumulado por modelo (por ejemplo Persistencia, Media móvil, MLP, GRU).
+
+Las figuras se guardan en:
+
+```text
+Modeling/energy/output/plots_cumulative/cell_<id>_energy.png
+```
+
+**Ejecución**:
+
+```bash
+python -m Modeling.energy.run_plots
+```
+
+---
+
+## Pipeline de energía (`run_energy_pipeline.py`)
+
+En la raíz del proyecto hay un script pequeño que ejecuta **sólo la parte energética**, sin volver a entrenar modelos:
+
+* Llama a `Modeling.energy.run_energy` con todos los modelos.
+* Llama a `Modeling.energy.run_plots` para generar las gráficas de consumo acumulado.
+
+Se asume que los modelos (baselines, MLP, GRU) ya se han ejecutado antes y que existen los ficheros necesarios.
+
+**Ejecución** desde la raíz:
+
+```bash
+python run_energy_pipeline.py
+```
+
+Esto actualiza:
+
+* `Modeling/energy/output/energy_results_all_models.csv`
+* `Modeling/energy/output/plots_cumulative/cell_<id>_energy.png`
+
+---
+
 ## Requisitos
 
 * Python **3.10+**
@@ -941,7 +1094,7 @@ total_output/
   pip install pandas numpy matplotlib
   ```
 
-* TensorFlow + Keras (para las Redes Neuronales):
+* TensorFlow + Keras (para las Redes Neuronales) y festivos:
 
   ```bash
   pip install tensorflow keras holidays
@@ -1100,22 +1253,47 @@ python run_orchestrator.py --models mlp,gru
 python run_orchestrator.py --models persistence,moving_average
 ```
 
+Salidas en:
+
+```text
+total_output/
+  ├─ metrics_by_cell_H6_W12_test.csv
+  └─ plots_cells/
+       ├─ cell_4259_combined.png
+       └─ ...
+```
+
+### 8. Pipeline de energía (ahorro y riesgo)
+
+```bash
+python run_energy_pipeline.py
+```
+
+Esto ejecuta:
+
+* `Modeling.energy.run_energy` (cálculo de ahorro y riesgo con todos los modelos).
+* `Modeling.energy.run_plots` (gráficas de consumo acumulado).
+
 ---
 
 ## Notas y posibles extensiones actuales
 
 * Los módulos **generales** (`data_access`, `targets`, `metrics`, `reporting`, `scaling`, `features_calendar`) están diseñados para ser reutilizables tanto por baselines como por redes neuronales.
 * La normalización, el tamaño de ventana y el horizonte se ajustan fácilmente vía `Modeling/config.py`.
-* Extensiones posibles:
+* La parte energética permite pasar de “MAPE y MAE” a indicadores más interpretables para una operadora: **ahorro potencial** y **riesgo de degradar QoS**.
 
-  * añadir más features temporales (otros festivos, eventos, etc.),
-  * probar arquitecturas específicas de series (más capas GRU/LSTM, CNN),
-  * hacer búsqueda de hiperparámetros para MLP/GRU,
-  * comparar explícitamente el comportamiento de los modelos por subperiodos (antes/durante vacaciones),
-  * explotar la tabla de métricas combinada para seleccionar el modelo más robusto por celda.
+Extensiones posibles:
+
+* Añadir más features temporales (otros festivos, eventos deportivos, etc.).
+* Probar arquitecturas específicas de series (más capas GRU/LSTM, CNN).
+* Hacer búsqueda de hiperparámetros para MLP/GRU por celda.
+* Comparar explícitamente el comportamiento de los modelos por subperiodos (antes/durante vacaciones, días laborables vs fines de semana).
+* Usar otras políticas de energía (más de dos niveles de consumo, histéresis distinta, etc.).
 
 ## Próximos pasos
 
-* Analizar en detalle las diferencias entre MLP y GRU, especialmente en el periodo de test (Navidad) y en celdas sensibles como Bocconi y Navigli.
-* Explorar ajustes de arquitectura o features para mejorar la robustez de la GRU en cambios de régimen (por ejemplo, otros tipos de codificación temporal o ventanas distintas).
-* Aplicar las predicciones para estimar el ahorro de energía teórico en las estaciones base de redes móviles (celdas), usando los distintos modelos.
+* Analizar en detalle las diferencias entre modelos (baselines, MLP, GRU) en términos de **error de predicción** en test.
+* Interpretar los resultados de energía por celda: cuánto se podría ahorrar y con qué riesgo, especialmente en zonas como Bocconi y Navigli frente a zonas más tranquilas.
+* Discutir las limitaciones del modelo de energía (muy simplificado) y posibles mejoras para acercarse más a la realidad de una red móvil.
+
+```
