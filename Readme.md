@@ -32,13 +32,11 @@ MilanTrafficPredictionNN/
 ├─ Mapa Squares Milán/
 │  └─ SelectedSquares.kml
 ├─ Processing/
-│  ├─ __init__.py
 │  ├─ config.py
 │  ├─ process_cells_internet.py
 │  ├─ timeseries_dataset.py
 │  └─ run_processing.py
 ├─ Modeling/
-│  ├─ __init__.py
 │  ├─ config.py
 │  ├─ data_access.py
 │  ├─ targets.py
@@ -47,38 +45,31 @@ MilanTrafficPredictionNN/
 │  ├─ scaling.py
 │  ├─ features_calendar.py
 │  ├─ baselines/
-│  │  ├─ __init__.py
 │  │  ├─ persistence/
-│  │  │  ├─ __init__.py
 │  │  │  ├─ persistence.py
 │  │  │  ├─ run_persistence.py
-│  │  │  ├─ viz.py
 │  │  │  ├─ run_plots.py
 │  │  │  └─ output/
 │  │  └─ moving_average/
-│  │     ├─ __init__.py
 │  │     ├─ moving_average.py
 │  │     ├─ run_moving_average.py
 │  │     ├─ run_plots.py
 │  │     └─ output/
 │  ├─ neural_networks/
-│  │  ├─ __init__.py
 │  │  ├─ mlp/
-│  │  │  ├─ __init__.py
 │  │  │  ├─ mlp.py
 │  │  │  ├─ run_mlp.py
 │  │  │  ├─ run_plots.py
 │  │  │  └─ output/
 │  │  └─ gru/
-│  │     ├─ __init__.py
 │  │     ├─ gru.py
 │  │     ├─ run_gru.py
 │  │     ├─ run_plots.py
 │  │     └─ output/
 │  └─ energy/
-│     ├─ __init__.py
 │     ├─ run_energy.py
-│     └─ run_plots.py
+|     ├─ run_plots.py 
+│     └─ output/
 ├─ total_output/
 │  ├─ metrics_by_cell_H6_W12_test.csv
 │  └─ plots_cells/
