@@ -7,8 +7,6 @@ Este módulo define métricas comunes:
 - MAPE (Mean Absolute Percentage Error)
 - sMAPE (simetric Mean Absolute Percentage Error)
 - wMAPE (weighted Mean Absolute Percentage Error)
-- NRMSE_IQR (Normalized Root Mean Squared Error por dispersión robusta)
-- NRMAE_Median (normalizado por mediana de la celda)
 
 Las funciones aceptan arrays de NumPy o Series de pandas y devuelven
 valores escalares (float). Se asume que y_true y y_pred están alineados
@@ -119,47 +117,4 @@ def wmape(y_true: ArrayLike, y_pred: ArrayLike, eps: float = 1e-6) -> float:
     den = np.sum(np.abs(yt))
     return float((num / max(den, eps)) * 100.0)
 
-
-# MEDIDAS CON POSIBILIDAD DE USO EN EL FUTURO
-
-# def nrmse_iqr(y_true: ArrayLike, y_pred: ArrayLike, iqr_ref: float) -> float:
-#     """
-#     NRMSE normalizado por IQR (dispersión robusta):
-#         NRMSE_IQR = RMSE / IQR_ref
-#     'iqr_ref' normalmente se calcula en el TRAIN de la celda.
-#     """
-#     yt = _to_float_array(y_true)
-#     yp = _to_float_array(y_pred)
-#     rmse_val = float(np.sqrt(np.mean((yt - yp) ** 2)))
-#     if iqr_ref <= 0:
-#         # Evita división por cero. Si no hay dispersión en train, devolver NaN.
-#         return float("nan")
-#     return rmse_val / iqr_ref
-
-
-# def nrmae_median(y_true: ArrayLike, y_pred: ArrayLike, median_ref: float, eps: float = 1e-6) -> float:
-#     """
-#     NRMAE normalizado por la mediana:
-#         NRMAE_MEDIAN = MAE / max(median_ref, eps)
-#     'median_ref' normalmente se calcula en el TRAIN de la celda.
-#     """
-#     yt = _to_float_array(y_true)
-#     yp = _to_float_array(y_pred)
-#     mae_val = float(np.mean(np.abs(yt - yp)))
-#     denom = max(abs(median_ref), eps)
-#     return mae_val / denom
-
-
-# def ref_stats_for_normalization(series_train: ArrayLike) -> tuple[float, float]:
-#     """
-#     Calcula los factores de normalización en TRAIN:
-#       - mediana (para NRMAE_MEDIAN)
-#       - IQR = Q75 - Q25 (para NRMSE_IQR)
-#     """
-#     st = _to_float_array(series_train)
-#     median = float(np.median(st))
-#     q75 = float(np.percentile(st, 75))
-#     q25 = float(np.percentile(st, 25))
-#     iqr = q75 - q25
-#     return median, iqr
 
