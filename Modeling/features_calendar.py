@@ -42,41 +42,6 @@ def add_public_holiday_feature(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def add_special_break_feature(
-    df: pd.DataFrame,
-    periods_path: Path,
-    column_name: str = "is_special_break",
-) -> pd.DataFrame:
-    """
-    Añade una columna (por defecto 'is_special_break') a partir de un fichero
-    CSV con periodos especiales.
-
-    El CSV debe tener columnas:
-        - 'label'      : nombre del periodo (no se usa en el cálculo)
-        - 'date_start' : fecha de inicio (YYYY-MM-DD)
-        - 'date_end'   : fecha de fin   (YYYY-MM-DD)
-
-    Cada fila define un rango [date_start, date_end] incluido.
-    Si un timestamp cae dentro de cualquiera de esos rangos, la columna
-    toma valor 1; en caso contrario, 0.
-    """
-    periods = pd.read_csv(
-        periods_path,
-        parse_dates=["date_start", "date_end"],
-    )
-
-    df[column_name] = 0
-    dates = df["datetime"].dt.date
-
-    for _, row in periods.iterrows():
-        start = row["date_start"].date()
-        end = row["date_end"].date()
-        mask = (dates >= start) & (dates <= end)
-        df.loc[mask, column_name] = 1
-
-    return df
-
-
 def add_calendar_features(
     df: pd.DataFrame,
     special_periods_path: Path | None = None,
@@ -112,9 +77,5 @@ def add_calendar_features(
 
     # Festivos oficiales en la provincia de Milán
     df = add_public_holiday_feature(df)
-
-    # Periodos especiales definidos por el usuario (opcional)
-    if special_periods_path is not None:
-        df = add_special_break_feature(df, periods_path=special_periods_path)
 
     return df
