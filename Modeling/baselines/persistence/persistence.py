@@ -33,7 +33,7 @@ def predict_persistence(X: pd.Series) -> pd.Series:
     Salida:
         Serie con las predicciones, misma longitud e índice que X.
     """
-    # Copia superficial para dejar explícito que se devuelve un objeto 'nuevo' independiente.
+    # Copia  que devuelve un objeto 'nuevo' independiente.
     return X.copy()
 
 
