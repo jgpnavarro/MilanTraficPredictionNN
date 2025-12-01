@@ -6,7 +6,7 @@ Este script:
   - Para cada celda:
       * Hace el split temporal en train/val/test.
       * Normaliza la serie dividiendo por el máximo de train.
-      * Añade features de calendario (día de la semana, hora, festivos, periodos especiales).
+      * Añade features de calendario (día de la semana, hora, festivos).
       * Construye ventanas deslizantes de longitud NN_INPUT_WINDOW
         para predecir a horizonte NN_HORIZON.
       * Entrena un modelo GRU (uno por celda).
@@ -177,12 +177,7 @@ def run_gru_per_cell(cell_id: int, series) -> List[Dict]:
     df_full.index.name = "datetime"
     df_full = df_full.reset_index()  # columnas: ['datetime', 'internet_total']
 
-    # Añadir features de calendario (día de la semana, hora, festivos, periodos especiales)
-    special_periods_path = Path("Data/calendar/special_periods.csv")
-    if special_periods_path.exists():
-        df_full = add_calendar_features(df_full, special_periods_path=special_periods_path)
-    else:
-        df_full = add_calendar_features(df_full, special_periods_path=None)
+    df_full = add_calendar_features(df_full, special_periods_path=None)
 
     # 4) Volver a dividir df_full en train/val/test por posición,
     #    respetando las longitudes obtenidas con split_series.
@@ -214,10 +209,7 @@ def run_gru_per_cell(cell_id: int, series) -> List[Dict]:
     #      - día de la semana
     #      - festivo oficial
     #
-    #    No usamos is_special_break como feature de entrada porque la mayor parte
-    #    del periodo marcado cae en test y el modelo no tendría ejemplos en
-    #    train/val para aprender su efecto. La mantenemos solo como etiqueta
-    #    para análisis y visualización.
+
     feature_cols = ["traffic_scaled", "hour_of_day", "day_of_week", "is_public_holiday"]
 
     n_features = len(feature_cols)

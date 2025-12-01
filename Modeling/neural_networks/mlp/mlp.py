@@ -3,7 +3,7 @@ Definición de un modelo MLP sencillo para predicción de series temporales,
 incluyendo capas de Dropout para reducir sobreajuste.
 
 El modelo trabaja con ventanas de tamaño fijo:
-    X_t = [lag_..., ..., lag_1, features_temporales...]
+    X_t = [lag_..., ..., lag_1, ...]
 
 y el objetivo es predecir un valor futuro y(t+H) para un horizonte H fijo.
 
@@ -40,7 +40,7 @@ def build_mlp(
     ----------
     input_dim : int
         Dimensión de la entrada (número total de columnas de X):
-        incluye lags + cualquier feature adicional (hora, día, etc.).
+        incluye lags.
     hidden_units : Sequence[int], opcional
         Número de neuronas en cada capa oculta. Por defecto (64, 32) crea
         dos capas ocultas: la primera con 64 neuronas y la segunda con 32.
